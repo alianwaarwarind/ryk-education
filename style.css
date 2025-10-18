@@ -1,12 +1,95 @@
 :root {
     --figure-size: 16px; /* Increased figure size for better visibility and impact */
-    --primary-color: #e74c3c;
-    --accent-color: #f1c40f; 
+    --primary-color: #e74c3c; /* Red color representing urgency/loss */
+    --accent-color: #f1c40f; /* Yellow color for the figure/hope */
     --background-color: #f4f4f4;
     --text-color: #2c3e50;
     --dark-bg: #1a1a1a;
 }
-/* ... (Keep all existing styles for body, h1, story-section, etc.) ... */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+/* General Story Section Styling */
+.story-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 10%;
+    text-align: center;
+    background-color: var(--background-color);
+    
+    /* CRITICAL FIXES FOR BROKEN LAYOUT */
+    z-index: 10; /* Ensure this content is always on top of the sticky viz (z-index: 1) */
+    position: relative; /* Establishes a new stacking context */
+    width: 100%; /* Ensures full width */
+    box-sizing: border-box; /* Fixes padding issues */
+}
+
+h1 {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    margin-bottom: 0.5em;
+}
+
+h2 {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+}
+
+.bold-text {
+    font-weight: 700;
+}
+
+.big-text {
+    font-size: 1.8em;
+    line-height: 1.4;
+    max-width: 800px;
+}
+
+/* Data Point Styling (Replaced LaTeX) */
+.data-point {
+    font-weight: 900;
+    color: var(--primary-color); 
+    font-size: 1.1em;
+}
+
+.large-data-point {
+    font-size: 1.5em;
+}
+
+.highlight-text {
+    font-weight: 900;
+    color: var(--primary-color);
+}
+
+/* Single Figure Placeholder (Emoji based) */
+#single-figure-placeholder {
+    width: 100px;
+    height: 100px;
+    margin: 20px auto;
+    background-color: transparent; 
+    font-size: 8em; 
+    color: var(--accent-color); 
+    box-shadow: none; 
+    border-radius: 0; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* CRITICAL EMOJI FIXES */
+    font-family: Arial, sans-serif; /* Explicitly set font */
+    white-space: nowrap; /* Prevents emoji character breakdown */
+}
 
 /* Visualization Container Setup (The Sticky Window) */
 #visualization-section {
@@ -37,7 +120,7 @@
     height: var(--figure-size);
     background-color: transparent;
     border-radius: 0;
-    margin: 3px; /* INCREASED: More margin for easier clicking and visual separation */
+    margin: 3px; /* More margin for easier clicking and visual separation */
     opacity: 0; 
     transition: opacity 0.5s; 
     cursor: pointer;
@@ -47,15 +130,86 @@
 
 .child-figure::before {
     content: '🧍'; 
+    font-family: "Segoe UI Symbol", "Noto Color Emoji", sans-serif; /* Ensure small emoji renders */
 }
-/* ... (Keep the rest of the existing styles, including the scroll-buffer and mobile media query) ... */
+
+.child-figure:hover {
+    color: var(--primary-color); 
+    transform: scale(1.2);
+}
+
+/* Status Overlay */
+#status-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 1.2em;
+    padding: 8px 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+    z-index: 2;
+}
+
+/* Pop-up for the Dream */
+#click-dream-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 30px;
+    background-color: white;
+    border: 3px solid var(--primary-color);
+    border-radius: 10px;
+    color: var(--text-color);
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    max-width: 400px;
+    opacity: 0;
+    pointer-events: none; 
+    transition: opacity 0.5s, transform 0.5s;
+    z-index: 99;
+    line-height: 1.2;
+}
+
+#click-dream-popup.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
+/* CRITICAL: Scroll Buffer to create the long scroll effect */
+#scroll-buffer {
+    height: 15500px; 
+    width: 100%;
+    background: transparent; 
+    z-index: 0; 
+}
 
 /* --- Mobile Optimization: Media Query --- */
 @media (max-width: 600px) {
-    /* ... (Keep all existing mobile optimization styles) ... */
+    .story-section {
+        padding: 30px 5%;
+    }
+
+    .big-text {
+        font-size: 1.4em;
+    }
     
-    /* CRITICAL FIX: Adjust the figure size for mobile rendering and performance */
+    /* Adjust figure size for better mobile display */
     :root {
-        --figure-size: 12px; /* Set a specific, larger size for mobile */
+        --figure-size: 12px; 
+    }
+
+    #single-figure-placeholder {
+        font-size: 6em;
+    }
+
+    #click-dream-popup {
+        font-size: 1em;
+        max-width: 90%;
+        padding: 15px 20px;
     }
 }
