@@ -1,5 +1,5 @@
 :root {
-    --figure-size: 10px; /* Increased size slightly for better emoji visibility */
+    --figure-size: 10px; 
     --primary-color: #e74c3c; /* Red color representing urgency/loss */
     --accent-color: #f1c40f; /* Yellow color for the figure/hope */
     --background-color: #f4f4f4;
@@ -49,10 +49,10 @@ h2 {
 .big-text {
     font-size: 1.8em;
     line-height: 1.4;
-    max-width: 800px; /* constrain width for readability */
+    max-width: 800px;
 }
 
-/* New Data Point Styling */
+/* Data Point Styling (Replaced LaTeX) */
 .data-point {
     font-weight: 900;
     color: var(--primary-color); 
@@ -73,9 +73,9 @@ h2 {
     width: 100px;
     height: 100px;
     margin: 20px auto;
-    background-color: transparent; /* Changed to transparent */
-    font-size: 8em; /* Size of the emoji */
-    color: var(--accent-color); /* Yellow color for the emoji */
+    background-color: transparent; 
+    font-size: 8em; 
+    color: var(--accent-color); 
     box-shadow: none; 
     border-radius: 0; 
     display: flex;
@@ -83,7 +83,7 @@ h2 {
     align-items: center;
 }
 
-/* Visualization Container Setup (The Scrollytelling Magic) */
+/* Visualization Container Setup (The Sticky Window) */
 #visualization-section {
     position: sticky; 
     top: 0;
@@ -106,15 +106,15 @@ h2 {
     justify-content: center;
 }
 
-/* Styling for each individual figure (now an emoji) */
+/* Styling for each individual figure (the small emojis) */
 .child-figure {
     width: var(--figure-size);
     height: var(--figure-size);
     background-color: transparent;
-    border-radius: 0; /* Not a circle anymore */
+    border-radius: 0;
     margin: 1px;
     opacity: 0; 
-    transition: opacity 0.5s; /* Smooth fade in */
+    transition: opacity 0.5s; 
     cursor: pointer;
     font-size: var(--figure-size);
     color: var(--accent-color);
@@ -125,11 +125,11 @@ h2 {
 }
 
 .child-figure:hover {
-    color: var(--primary-color); /* Change emoji color on hover */
+    color: var(--primary-color); 
     transform: scale(1.2);
 }
 
-/* Status Overlay (shows how many figures are rendered) */
+/* Status Overlay */
 #status-overlay {
     position: absolute;
     bottom: 20px;
@@ -169,4 +169,12 @@ h2 {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
     pointer-events: auto;
+}
+
+/* CRITICAL: Scroll Buffer to create the long scroll effect */
+#scroll-buffer {
+    height: 15500px; /* Must be larger than MAX_SCROLL_DISTANCE in script.js (15000) */
+    width: 100%;
+    background: transparent; 
+    z-index: 0; 
 }
