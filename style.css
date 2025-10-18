@@ -1,11 +1,20 @@
 :root {
-    --primary-color: #e74c3c;
-    --accent-color: #f1c40f; 
+    --primary-color: #e74c3c; /* Red color representing urgency/loss */
+    --accent-color: #f1c40f; /* Yellow color for the figure/hope */
     --background-color: #f4f4f4;
     --text-color: #2c3e50;
     --dark-bg: #1a1a1a;
 }
-/* ... (Existing body and general styles) ... */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
 
 /* General Story Section Styling */
 .story-section {
@@ -24,7 +33,42 @@
     box-sizing: border-box;
 }
 
-/* ... (Existing text/data styles) ... */
+h1 {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    margin-bottom: 0.5em;
+}
+
+h2 {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+}
+
+.bold-text {
+    font-weight: 700;
+}
+
+.big-text {
+    font-size: 1.8em;
+    line-height: 1.4;
+    max-width: 800px;
+}
+
+/* Data Point Styling (Restores the red, bold numbers) */
+.data-point {
+    font-weight: 900;
+    color: var(--primary-color); 
+    font-size: 1.1em;
+}
+
+.large-data-point {
+    font-size: 1.5em;
+}
+
+.highlight-text {
+    font-weight: 900;
+    color: var(--primary-color);
+}
 
 /* Final Fix for Ali's Placeholder */
 #single-figure-placeholder {
@@ -32,7 +76,7 @@
     height: 100px;
     margin: 20px auto;
     background-color: transparent; 
-    font-size: 0; /* Ensures no default text size interferes */
+    font-size: 0; 
     color: transparent; 
     display: flex;
     justify-content: center;
@@ -41,11 +85,11 @@
     white-space: nowrap;
 }
 
-/* Style for the large single figure in the intro */
+/* Style for the large single figure in the intro (Restores yellow figure) */
 .ali-figure {
     font-size: 8em; 
     color: var(--accent-color); 
-    display: block; /* Ensure it stays a block element within the center */
+    display: block; 
 }
 
 
@@ -91,17 +135,97 @@
     cursor: pointer;
     
     font-size: 16px; 
-    color: var(--accent-color);
+    color: var(--accent-color); /* Restores yellow figure color */
     display: inline-block;
     
-    /* Critical Flexbox properties to ensure wrapping */
     flex-shrink: 0; 
     flex-grow: 0;
     min-width: 32px; 
     min-height: 32px;
     
-    transform: scale(1.0); /* Back to normal scale */
+    transform: scale(1.0);
     transform-origin: center center;
 }
 
-/* ... (Keep the rest of the existing styles: hover, status-overlay, pop-up, scroll-buffer, media-query) ... */
+.child-figure::before {
+    content: '🧍'; 
+    font-family: "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+}
+
+.child-figure:hover {
+    color: var(--primary-color); 
+    transform: scale(1.1);
+}
+
+/* Status Overlay */
+#status-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 1.2em;
+    padding: 8px 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+    z-index: 2;
+}
+
+/* Pop-up for the Dream */
+#click-dream-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 30px;
+    background-color: white;
+    border: 3px solid var(--primary-color);
+    border-radius: 10px;
+    color: var(--text-color);
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    max-width: 400px;
+    opacity: 0;
+    pointer-events: none; 
+    transition: opacity 0.5s, transform 0.5s;
+    z-index: 99;
+    line-height: 1.2;
+}
+
+#click-dream-popup.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
+/* CRITICAL: Scroll Buffer to create the long scroll effect */
+#scroll-buffer {
+    height: 15500px;
+    width: 100%;
+    background: transparent; 
+    z-index: 0; 
+}
+
+/* --- Mobile Optimization: Media Query --- */
+@media (max-width: 600px) {
+    .story-section {
+        padding: 30px 5%;
+    }
+
+    .big-text {
+        font-size: 1.4em;
+    }
+    
+    .child-figure {
+        width: 20px; 
+        height: 20px;
+        font-size: 14px;
+        transform: scale(1.0); 
+    }
+
+    #single-figure-placeholder {
+        /* Adjust placement of the single figure on mobile */
+        margin: 5px auto;
+    }
+}
