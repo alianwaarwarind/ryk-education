@@ -5,7 +5,22 @@
     --text-color: #2c3e50;
     --dark-bg: #1a1a1a;
 }
-/* ... (Keep existing body and general styles) ... */
+
+/* FINAL CRITICAL FIX 1: Set explicit height on html/body for sticky to work */
+html, body {
+    height: 100%; 
+    min-height: 100%;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
 
 /* General Story Section Styling */
 .story-section {
@@ -17,15 +32,26 @@
     padding: 50px 10%;
     text-align: center;
     background-color: var(--background-color);
+    
     z-index: 10;
     position: relative;
     width: 100%;
     box-sizing: border-box;
 }
 
-/* ... (Keep existing h1, h2, bold-text, data-point styles) ... */
+h1 {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    margin-bottom: 0.5em;
+}
 
-/* GUARANTEED FIX 1: Stylistic fix for Ali's figure using :before */
+.data-point {
+    font-weight: 900;
+    color: var(--primary-color); 
+    font-size: 1.1em;
+}
+
+/* Ali's Figure Placeholder */
 #ali-figure-guaranteed {
     width: 100px;
     height: 100px;
@@ -45,8 +71,69 @@
 
 /* New section for the scroll calculation fix */
 #scroll-start-buffer {
-    height: 10vh; /* Should be invisible but takes up space */
+    height: 10vh; 
     background: transparent;
 }
 
-/* ... (Keep the rest of the existing styles for #visualization-section, #figure-container, and .child-figure) ... */
+/* Visualization Container Setup (The Sticky Black Box) */
+#visualization-section {
+    position: sticky; 
+    top: 0; /* CRITICAL: Ensures it sticks at the top */
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--dark-bg); /* This is the black box color */
+    overflow: hidden;
+    
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    
+    z-index: 1; 
+}
+
+#figure-container {
+    width: 95%; 
+    height: 95%; 
+    
+    /* FINAL CRITICAL FIX 2: Simplify display logic and rely on fixed width/height for wrapping */
+    padding-top: 5%;
+    padding-bottom: 5%;
+    
+    display: block; 
+    text-align: center; 
+}
+
+/* Styling for each individual figure */
+.child-figure {
+    width: 32px; 
+    height: 32px;
+    background-color: transparent;
+    border-radius: 0;
+    margin: 3px;
+    opacity: 0; 
+    transition: opacity 0.5s, transform 0.1s;
+    cursor: pointer;
+    
+    font-size: 16px; 
+    color: var(--accent-color);
+    display: inline-block;
+    
+    flex-shrink: 0; 
+    flex-grow: 0;
+    min-width: 32px; 
+    min-height: 32px;
+    
+    transform: scale(1.0);
+    transform-origin: center center;
+}
+
+.child-figure::before {
+    content: '🧍'; 
+    font-family: "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+}
+
+.child-figure:hover {
+    color: var(--primary-color); 
+    transform: scale(1.1);
+}
+/* ... (Keep the rest of the existing styles for overlays and media queries) ... */
