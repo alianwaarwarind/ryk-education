@@ -77,43 +77,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const figure = figuresToAppend[index];
             figureContainer.appendChild(figure);
             
-            // Trigger opacity change AFTER appending
             setTimeout(() => figure.style.opacity = '1', 10); 
 
             figuresRendered++;
 
-            // Use a small delay (2ms) for the staggered effect
             setTimeout(() => appendOneByOne(index + 1), 2); 
         }
 
         appendOneByOne(0);
     }
 
-    // --- Step 4: Scroll Tracking Logic ---
+    // --- Step 4: Scroll Tracking Logic (CRITICAL FIX APPLIED) ---
     function handleScroll() {
         if (figuresRendered >= MAX_FIGURES_TO_RENDER) return;
 
-        const viewportHeight = window.innerHeight;
-        const callToActionBottom = callToActionSection.getBoundingClientRect().bottom;
+        // Calculate the height of the introductory content (Sections 1 and 2)
+        const introContentHeight = callToActionSection.offsetHeight + document.querySelector('.intro-section').offsetHeight;
+        
+        // window.scrollY is the reliable total scroll depth from the top of the page
+        const totalScrolled = window.scrollY; 
+        
+        // This calculates the distance scrolled *inside* the 15,500px buffer area
+        const scrollDistance = Math.max(0, totalScrolled - introContentHeight); 
+        
+        // Use the new, corrected scrollDistance to map to figures
+        let targetFigures = Math.min(
+            MAX_FIGURES_TO_RENDER, 
+            Math.floor((scrollDistance / MAX_SCROLL_DISTANCE) * MAX_FIGURES_TO_RENDER)
+        );
 
-        // Check if the user is past the introductory text
-        if (callToActionBottom <= viewportHeight * 0.2) {
-            
-            // scrollDistance measures how far the visualization section has scrolled past the top
-            const scrollDistance = visualizationSection.getBoundingClientRect().top * -1;
-            
-            // Map scroll distance to figures to render
-            let targetFigures = Math.min(
-                MAX_FIGURES_TO_RENDER, 
-                Math.floor((scrollDistance / MAX_SCROLL_DISTANCE) * MAX_FIGURES_TO_RENDER)
-            );
+        let newFiguresToRender = targetFigures - figuresRendered;
 
-            let newFiguresToRender = targetFigures - figuresRendered;
-
-            // Render figures in small, controlled chunks (max 100 figures per scroll event)
-            if (newFiguresToRender > 0) {
-                renderFigureBatch(Math.min(newFiguresToRender, 100)); 
-            }
+        if (newFiguresToRender > 0) {
+            renderFigureBatch(Math.min(newFiguresToRender, 100)); 
         }
     }
     
