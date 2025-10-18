@@ -49,52 +49,54 @@ window.addEventListener('load', () => {
         }, 3000);
     }
 
-    // --- Step 3: Figure Generation on Scroll (Smoother Batching) ---
+    // --- Step 3: Figure Generation on Scroll (STABLE BATCHING FIX) ---
     function renderFigureBatch(count) {
         if (isRendering || figuresRendered >= MAX_FIGURES_TO_RENDER || count <= 0) return;
         isRendering = true;
 
         let batchSize = Math.min(count, MAX_FIGURES_TO_RENDER - figuresRendered);
-        let figuresToAppend = [];
-        
+        let fragment = document.createDocumentFragment(); 
+
+        // 1. Create all figures in the batch outside the DOM
         for (let i = 0; i < batchSize; i++) {
             const figure = document.createElement('div');
             figure.classList.add('child-figure');
             figure.addEventListener('click', showRandomDream); 
-            figuresToAppend.push(figure);
+            fragment.appendChild(figure);
         }
+        
+        // 2. Append the entire fragment to the DOM in one single operation
+        figureContainer.appendChild(fragment);
 
-        function appendOneByOne(index) {
-            if (index >= figuresToAppend.length) {
-                figuresCountSpan.textContent = figuresRendered;
-                isRendering = false;
-                
-                if (figuresRendered === MAX_FIGURES_TO_RENDER) {
-                    statusOverlay.innerHTML = `Total <span class="data-point">${TOTAL_OOSC_NEVER_ENROLLED.toLocaleString()}</span> Lost Futures.<br>(<span class="data-point">${figuresRendered}</span> figures rendered, each representing <span class="data-point">${CHILDREN_PER_FIGURE.toLocaleString()}</span> children)`;
-                }
-                return;
-            }
-
-            const figure = figuresToAppend[index];
-            figureContainer.appendChild(figure);
+        // 3. Update opacity and counters after the DOM operation finishes
+        setTimeout(() => {
+            // Find the figures that were just appended and are still invisible
+            const newlyRendered = figureContainer.querySelectorAll('.child-figure:not([style*="opacity: 1"])');
             
-            setTimeout(() => figure.style.opacity = '1', 10); 
+            // Set their opacity to 1 to trigger the CSS transition fade-in
+            newlyRendered.forEach(figure => {
+                figure.style.opacity = '1';
+            });
 
-            figuresRendered++;
-
-            setTimeout(() => appendOneByOne(index + 1), 2); 
-        }
-
-        appendOneByOne(0);
+            figuresRendered += batchSize;
+            figuresCountSpan.textContent = figuresRendered;
+            isRendering = false;
+            
+            // Final overlay update
+            if (figuresRendered === MAX_FIGURES_TO_RENDER) {
+                statusOverlay.innerHTML = `Total <span class="data-point">${TOTAL_OOSC_NEVER_ENROLLED.toLocaleString()}</span> Lost Futures.<br>(<span class="data-point">${figuresRendered}</span> figures rendered, each representing <span class="data-point">${CHILDREN_PER_FIGURE.toLocaleString()}</span> children)`;
+            }
+        }, 0); 
     }
 
     // --- Step 4: Scroll Tracking Logic ---
     function handleScroll() {
         if (figuresRendered >= MAX_FIGURES_TO_RENDER) return;
 
-        // Calculate the height of the introductory content (Sections 1 and 2)
-        // This is robust now thanks to the 'load' event
         const introSection = document.querySelector('.intro-section');
+        if (!introSection || !callToActionSection) return;
+        
+        // Calculate the height of the introductory content (Sections 1 and 2)
         const introContentHeight = introSection.offsetHeight + callToActionSection.offsetHeight;
         
         const totalScrolled = window.scrollY; 
