@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
+// CRITICAL FIX: Use 'load' event to ensure all images/fonts are measured before calculating height
+window.addEventListener('load', () => {
     // --- Project Constants ---
     const TOTAL_OOSC_NEVER_ENROLLED = 451123;
     const MAX_FIGURES_TO_RENDER = 5000;
@@ -87,20 +88,21 @@ document.addEventListener('DOMContentLoaded', () => {
         appendOneByOne(0);
     }
 
-    // --- Step 4: Scroll Tracking Logic (CRITICAL FIX APPLIED) ---
+    // --- Step 4: Scroll Tracking Logic ---
     function handleScroll() {
         if (figuresRendered >= MAX_FIGURES_TO_RENDER) return;
 
         // Calculate the height of the introductory content (Sections 1 and 2)
-        const introContentHeight = callToActionSection.offsetHeight + document.querySelector('.intro-section').offsetHeight;
+        // This is robust now thanks to the 'load' event
+        const introSection = document.querySelector('.intro-section');
+        const introContentHeight = introSection.offsetHeight + callToActionSection.offsetHeight;
         
-        // window.scrollY is the reliable total scroll depth from the top of the page
         const totalScrolled = window.scrollY; 
         
         // This calculates the distance scrolled *inside* the 15,500px buffer area
         const scrollDistance = Math.max(0, totalScrolled - introContentHeight); 
         
-        // Use the new, corrected scrollDistance to map to figures
+        // Map scroll distance to figures to render
         let targetFigures = Math.min(
             MAX_FIGURES_TO_RENDER, 
             Math.floor((scrollDistance / MAX_SCROLL_DISTANCE) * MAX_FIGURES_TO_RENDER)
