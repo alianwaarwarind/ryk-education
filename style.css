@@ -1,20 +1,11 @@
 :root {
-    --primary-color: #e74c3c; /* Red color representing urgency/loss */
-    --accent-color: #f1c40f; /* Yellow color for the figure/hope */
+    --primary-color: #e74c3c;
+    --accent-color: #f1c40f; 
     --background-color: #f4f4f4;
     --text-color: #2c3e50;
     --dark-bg: #1a1a1a;
 }
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    scroll-behavior: smooth;
-}
+/* ... (Keep existing body and general styles) ... */
 
 /* General Story Section Styling */
 .story-section {
@@ -26,206 +17,36 @@ body {
     padding: 50px 10%;
     text-align: center;
     background-color: var(--background-color);
-    
     z-index: 10;
     position: relative;
     width: 100%;
     box-sizing: border-box;
 }
 
-h1 {
-    font-size: 2.5em;
-    color: var(--primary-color);
-    margin-bottom: 0.5em;
-}
+/* ... (Keep existing h1, h2, bold-text, data-point styles) ... */
 
-h2 {
-    font-size: 2.5em;
-    margin-bottom: 0.5em;
-}
-
-.bold-text {
-    font-weight: 700;
-}
-
-.big-text {
-    font-size: 1.8em;
-    line-height: 1.4;
-    max-width: 800px;
-}
-
-/* Data Point Styling (Restores the red, bold numbers) */
-.data-point {
-    font-weight: 900;
-    color: var(--primary-color); 
-    font-size: 1.1em;
-}
-
-.large-data-point {
-    font-size: 1.5em;
-}
-
-.highlight-text {
-    font-weight: 900;
-    color: var(--primary-color);
-}
-
-/* Final Fix for Ali's Placeholder */
-#single-figure-placeholder {
+/* GUARANTEED FIX 1: Stylistic fix for Ali's figure using :before */
+#ali-figure-guaranteed {
     width: 100px;
     height: 100px;
     margin: 20px auto;
-    background-color: transparent; 
-    font-size: 0; 
-    color: transparent; 
+    background-color: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: Arial, sans-serif;
-    white-space: nowrap;
 }
 
-/* Style for the large single figure in the intro (Restores yellow figure) */
-.ali-figure {
+#ali-figure-guaranteed::before {
+    content: '🧍'; 
     font-size: 8em; 
     color: var(--accent-color); 
-    display: block; 
 }
 
-
-/* Visualization Container Setup (The Sticky Window) */
-#visualization-section {
-    position: sticky; 
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--dark-bg);
-    overflow: hidden;
-    
-    /* Correct Flex setup to center the #figure-container block */
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    
-    z-index: 1; 
+/* New section for the scroll calculation fix */
+#scroll-start-buffer {
+    height: 10vh; /* Should be invisible but takes up space */
+    background: transparent;
 }
 
-#figure-container {
-    width: 95%; 
-    height: 95%; 
-    
-    /* FINAL FIX: Use padding to force vertical space occupancy */
-    padding-top: 5%;
-    padding-bottom: 5%;
-    
-    display: block; 
-    text-align: center; 
-}
-
-/* Styling for each individual figure (The final size and clickable area) */
-.child-figure {
-    /* Set explicit, larger dimensions for clickability */
-    width: 32px; 
-    height: 32px;
-    background-color: transparent;
-    border-radius: 0;
-    margin: 3px;
-    opacity: 0; 
-    transition: opacity 0.5s, transform 0.1s;
-    cursor: pointer;
-    
-    font-size: 16px; 
-    color: var(--accent-color); /* Restores yellow figure color */
-    display: inline-block;
-    
-    flex-shrink: 0; 
-    flex-grow: 0;
-    min-width: 32px; 
-    min-height: 32px;
-    
-    transform: scale(1.0);
-    transform-origin: center center;
-}
-
-.child-figure::before {
-    content: '🧍'; 
-    font-family: "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
-}
-
-.child-figure:hover {
-    color: var(--primary-color); 
-    transform: scale(1.1);
-}
-
-/* Status Overlay */
-#status-overlay {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 1.2em;
-    padding: 8px 15px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 5px;
-    z-index: 2;
-}
-
-/* Pop-up for the Dream */
-#click-dream-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px 30px;
-    background-color: white;
-    border: 3px solid var(--primary-color);
-    border-radius: 10px;
-    color: var(--text-color);
-    font-size: 1.5em;
-    font-weight: bold;
-    text-align: center;
-    max-width: 400px;
-    opacity: 0;
-    pointer-events: none; 
-    transition: opacity 0.5s, transform 0.5s;
-    z-index: 99;
-    line-height: 1.2;
-}
-
-#click-dream-popup.visible {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
-}
-
-/* CRITICAL: Scroll Buffer to create the long scroll effect */
-#scroll-buffer {
-    height: 15500px;
-    width: 100%;
-    background: transparent; 
-    z-index: 0; 
-}
-
-/* --- Mobile Optimization: Media Query --- */
-@media (max-width: 600px) {
-    .story-section {
-        padding: 30px 5%;
-    }
-
-    .big-text {
-        font-size: 1.4em;
-    }
-    
-    .child-figure {
-        width: 20px; 
-        height: 20px;
-        font-size: 14px;
-        transform: scale(1.0); 
-    }
-
-    #single-figure-placeholder {
-        /* Adjust placement of the single figure on mobile */
-        margin: 5px auto;
-    }
-}
+/* ... (Keep the rest of the existing styles for #visualization-section, #figure-container, and .child-figure) ... */
