@@ -108,10 +108,7 @@ h2 {
     height: 95%; 
     display: flex;
     flex-wrap: wrap; 
-    
-    /* CRITICAL FIX: Center the rows of figures to prevent them from pooling at the top */
-    align-content: center; 
-    
+    align-content: center; /* Center the rows of figures */
     justify-content: center;
 }
 
@@ -127,6 +124,10 @@ h2 {
     cursor: pointer;
     font-size: var(--figure-size);
     color: var(--accent-color);
+    
+    /* FINAL CRITICAL FIX 1: Use transform to SCALE the figure up to ensure visibility */
+    transform: scale(2.0); 
+    transform-origin: center center;
 }
 
 .child-figure::before {
@@ -136,7 +137,8 @@ h2 {
 
 .child-figure:hover {
     color: var(--primary-color); 
-    transform: scale(1.2);
+    /* Hover effect maintains the base scale (2.0) and adds a little extra (0.2) */
+    transform: scale(2.2); 
 }
 
 /* Status Overlay */
@@ -205,6 +207,11 @@ h2 {
 
     #single-figure-placeholder {
         font-size: 6em;
+    }
+
+    /* FINAL CRITICAL FIX 2: Apply a high scale factor to force visibility on mobile */
+    .child-figure {
+        transform: scale(1.5); 
     }
 
     #click-dream-popup {
