@@ -5,17 +5,49 @@
     --text-color: #2c3e50;
     --dark-bg: #1a1a1a;
 }
+/* ... (Existing body and general styles) ... */
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
+/* General Story Section Styling */
+.story-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 10%;
+    text-align: center;
     background-color: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    scroll-behavior: smooth;
+    
+    z-index: 10;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
 }
-/* ... (Keep existing section/text styles) ... */
+
+/* ... (Existing text/data styles) ... */
+
+/* Final Fix for Ali's Placeholder */
+#single-figure-placeholder {
+    width: 100px;
+    height: 100px;
+    margin: 20px auto;
+    background-color: transparent; 
+    font-size: 0; /* Ensures no default text size interferes */
+    color: transparent; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    white-space: nowrap;
+}
+
+/* Style for the large single figure in the intro */
+.ali-figure {
+    font-size: 8em; 
+    color: var(--accent-color); 
+    display: block; /* Ensure it stays a block element within the center */
+}
+
 
 /* Visualization Container Setup (The Sticky Window) */
 #visualization-section {
@@ -26,7 +58,7 @@ body {
     background-color: var(--dark-bg);
     overflow: hidden;
     
-    /* Ensure the figure container block is centered both ways */
+    /* Correct Flex setup to center the #figure-container block */
     display: flex;
     justify-content: center; 
     align-items: center; 
@@ -38,71 +70,38 @@ body {
     width: 95%; 
     height: 95%; 
     
-    /* Use auto margins for centering within the flex parent */
-    margin-top: auto;
-    margin-bottom: auto;
+    /* FINAL FIX: Use padding to force vertical space occupancy */
+    padding-top: 5%;
+    padding-bottom: 5%;
     
-    /* Maintain block display for wrapping */
     display: block; 
     text-align: center; 
 }
 
 /* Styling for each individual figure (The final size and clickable area) */
 .child-figure {
-    /* CRITICAL FIX: Set explicit, larger dimensions for clickability */
+    /* Set explicit, larger dimensions for clickability */
     width: 32px; 
     height: 32px;
     background-color: transparent;
     border-radius: 0;
     margin: 3px;
     opacity: 0; 
-    transition: opacity 0.5s, transform 0.1s; /* Add transform transition */
+    transition: opacity 0.5s, transform 0.1s;
     cursor: pointer;
     
-    /* Set emoji size directly */
     font-size: 16px; 
     color: var(--accent-color);
     display: inline-block;
     
-    /* Remove aggressive scaling, rely on width/height */
-    transform: scale(1.0); 
+    /* Critical Flexbox properties to ensure wrapping */
+    flex-shrink: 0; 
+    flex-grow: 0;
+    min-width: 32px; 
+    min-height: 32px;
+    
+    transform: scale(1.0); /* Back to normal scale */
     transform-origin: center center;
 }
 
-.child-figure::before {
-    content: '🧍'; 
-    font-family: "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
-}
-
-.child-figure:hover {
-    color: var(--primary-color); 
-    transform: scale(1.1); /* Small hover scale for feedback */
-}
-
-/* Pop-up for the Dream */
-#click-dream-popup {
-    /* ... (Ensure existing pop-up styles are here) ... */
-    
-    /* Ensure it starts completely hidden */
-    opacity: 0; 
-    pointer-events: none; 
-}
-
-#click-dream-popup.visible {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
-}
-
-
-/* --- Mobile Optimization: Media Query --- */
-@media (max-width: 600px) {
-    /* ... (Keep existing mobile styles) ... */
-    
-    .child-figure {
-        width: 20px; /* Smaller clickable area on mobile */
-        height: 20px;
-        font-size: 14px;
-        transform: scale(1.0); 
-    }
-}
+/* ... (Keep the rest of the existing styles: hover, status-overlay, pop-up, scroll-buffer, media-query) ... */
