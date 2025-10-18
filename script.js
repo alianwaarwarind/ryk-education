@@ -1,10 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Project Constants ---
-    const TOTAL_OOSC_NEVER_ENROLLED = 451123; // The key figure
-    const MAX_FIGURES_TO_RENDER = 5000;      // Max number of emojis to draw
-    const MAX_SCROLL_DISTANCE = 15000;       // Total scroll distance (in pixels) to fully render all figures
+    const TOTAL_OOSC_NEVER_ENROLLED = 451123;
+    const MAX_FIGURES_TO_RENDER = 5000;
+    const MAX_SCROLL_DISTANCE = 15000; 
     
-    // Calculates the representation factor for the overlay text
     const CHILDREN_PER_FIGURE = Math.ceil(TOTAL_OOSC_NEVER_ENROLLED / MAX_FIGURES_TO_RENDER);
 
     // --- DOM Elements ---
@@ -41,10 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
         dreamPopup.innerHTML = `“${randomDream}”`;
         dreamPopup.classList.add('visible');
 
-        event.target.style.color = '#e74c3c'; // Highlight on click
+        event.target.style.color = '#e74c3c'; 
         
         setTimeout(() => {
-            event.target.style.color = '#f1c40f'; // Revert to accent color
+            event.target.style.color = '#f1c40f'; 
             dreamPopup.classList.remove('visible'); 
         }, 3000);
     }
@@ -64,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
             figuresToAppend.push(figure);
         }
 
-        // Recursive function with delay to append figures one by one for smooth animation
         function appendOneByOne(index) {
             if (index >= figuresToAppend.length) {
                 figuresCountSpan.textContent = figuresRendered;
@@ -79,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const figure = figuresToAppend[index];
             figureContainer.appendChild(figure);
             
-            // Trigger opacity change AFTER appending to ensure the fade-in transition works
+            // Trigger opacity change AFTER appending
             setTimeout(() => figure.style.opacity = '1', 10); 
 
             figuresRendered++;
@@ -98,12 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const viewportHeight = window.innerHeight;
         const callToActionBottom = callToActionSection.getBoundingClientRect().bottom;
 
-        // Check if the user is past the introductory text and into the visualization zone
+        // Check if the user is past the introductory text
         if (callToActionBottom <= viewportHeight * 0.2) {
             
             // scrollDistance measures how far the visualization section has scrolled past the top
             const scrollDistance = visualizationSection.getBoundingClientRect().top * -1;
             
+            // Map scroll distance to figures to render
             let targetFigures = Math.min(
                 MAX_FIGURES_TO_RENDER, 
                 Math.floor((scrollDistance / MAX_SCROLL_DISTANCE) * MAX_FIGURES_TO_RENDER)
