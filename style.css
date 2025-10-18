@@ -1,5 +1,4 @@
 :root {
-    --figure-size: 16px; 
     --primary-color: #e74c3c;
     --accent-color: #f1c40f; 
     --background-color: #f4f4f4;
@@ -16,52 +15,7 @@ body {
     line-height: 1.6;
     scroll-behavior: smooth;
 }
-
-/* General Story Section Styling */
-.story-section {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 50px 10%;
-    text-align: center;
-    background-color: var(--background-color);
-    
-    z-index: 10;
-    position: relative;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-h1 {
-    font-size: 2.5em;
-    color: var(--primary-color);
-    margin-bottom: 0.5em;
-}
-/* ... (Keep the rest of the existing text/section styles) ... */
-.large-data-point {
-    font-size: 1.5em;
-}
-.highlight-text {
-    font-weight: 900;
-    color: var(--primary-color);
-}
-#single-figure-placeholder {
-    width: 100px;
-    height: 100px;
-    margin: 20px auto;
-    background-color: transparent; 
-    font-size: 8em; 
-    color: var(--accent-color); 
-    box-shadow: none; 
-    border-radius: 0; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, sans-serif;
-    white-space: nowrap;
-}
+/* ... (Keep existing section/text styles) ... */
 
 /* Visualization Container Setup (The Sticky Window) */
 #visualization-section {
@@ -71,9 +25,12 @@ h1 {
     height: 100vh;
     background-color: var(--dark-bg);
     overflow: hidden;
+    
+    /* Ensure the figure container block is centered both ways */
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center; 
+    align-items: center; 
+    
     z-index: 1; 
 }
 
@@ -81,36 +38,34 @@ h1 {
     width: 95%; 
     height: 95%; 
     
-    /* FINAL CRITICAL FIX: Use display: block and text-align to force wrapping */
+    /* Use auto margins for centering within the flex parent */
+    margin-top: auto;
+    margin-bottom: auto;
+    
+    /* Maintain block display for wrapping */
     display: block; 
     text-align: center; 
-    /* Removed flex properties */
 }
 
-/* Styling for each individual figure (the small emojis) */
+/* Styling for each individual figure (The final size and clickable area) */
 .child-figure {
-    width: var(--figure-size);
-    height: var(--figure-size);
+    /* CRITICAL FIX: Set explicit, larger dimensions for clickability */
+    width: 32px; 
+    height: 32px;
     background-color: transparent;
     border-radius: 0;
     margin: 3px;
     opacity: 0; 
-    transition: opacity 0.5s; 
+    transition: opacity 0.5s, transform 0.1s; /* Add transform transition */
     cursor: pointer;
-    font-size: var(--figure-size);
+    
+    /* Set emoji size directly */
+    font-size: 16px; 
     color: var(--accent-color);
+    display: inline-block;
     
-    /* FINAL CRITICAL FIX: Make figures inline-block so they wrap like text */
-    display: inline-block; 
-    
-    /* Keep sizing controls */
-    flex-shrink: 0; 
-    flex-grow: 0;
-    min-width: var(--figure-size);
-    min-height: var(--figure-size);
-    
-    /* Keep scaling transform */
-    transform: scale(2.0); 
+    /* Remove aggressive scaling, rely on width/height */
+    transform: scale(1.0); 
     transform-origin: center center;
 }
 
@@ -121,35 +76,33 @@ h1 {
 
 .child-figure:hover {
     color: var(--primary-color); 
-    transform: scale(2.2); 
+    transform: scale(1.1); /* Small hover scale for feedback */
 }
-/* ... (Keep the rest of the existing styles for status-overlay, pop-up, and scroll-buffer) ... */
+
+/* Pop-up for the Dream */
+#click-dream-popup {
+    /* ... (Ensure existing pop-up styles are here) ... */
+    
+    /* Ensure it starts completely hidden */
+    opacity: 0; 
+    pointer-events: none; 
+}
+
+#click-dream-popup.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
 
 /* --- Mobile Optimization: Media Query --- */
 @media (max-width: 600px) {
-    .story-section {
-        padding: 30px 5%;
-    }
-
-    .big-text {
-        font-size: 1.4em;
-    }
+    /* ... (Keep existing mobile styles) ... */
     
-    :root {
-        --figure-size: 12px; 
-    }
-
-    #single-figure-placeholder {
-        font-size: 6em;
-    }
-
     .child-figure {
-        transform: scale(1.5); 
-    }
-
-    #click-dream-popup {
-        font-size: 1em;
-        max-width: 90%;
-        padding: 15px 20px;
+        width: 20px; /* Smaller clickable area on mobile */
+        height: 20px;
+        font-size: 14px;
+        transform: scale(1.0); 
     }
 }
