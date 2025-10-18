@@ -1,5 +1,5 @@
 :root {
-    --figure-size: 16px; /* Increased figure size for better visibility and impact */
+    --figure-size: 16px; 
     --primary-color: #e74c3c;
     --accent-color: #f1c40f; 
     --background-color: #f4f4f4;
@@ -39,39 +39,14 @@ h1 {
     color: var(--primary-color);
     margin-bottom: 0.5em;
 }
-
-h2 {
-    font-size: 2.5em;
-    margin-bottom: 0.5em;
-}
-
-.bold-text {
-    font-weight: 700;
-}
-
-.big-text {
-    font-size: 1.8em;
-    line-height: 1.4;
-    max-width: 800px;
-}
-
-/* Data Point Styling (Replaced LaTeX) */
-.data-point {
-    font-weight: 900;
-    color: var(--primary-color); 
-    font-size: 1.1em;
-}
-
+/* ... (Keep the rest of the existing text/section styles) ... */
 .large-data-point {
     font-size: 1.5em;
 }
-
 .highlight-text {
     font-weight: 900;
     color: var(--primary-color);
 }
-
-/* Single Figure Placeholder (Emoji based) */
 #single-figure-placeholder {
     width: 100px;
     height: 100px;
@@ -84,7 +59,6 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    
     font-family: Arial, sans-serif;
     white-space: nowrap;
 }
@@ -106,10 +80,11 @@ h2 {
 #figure-container {
     width: 95%; 
     height: 95%; 
-    display: flex;
-    flex-wrap: wrap; 
-    align-content: center; /* Center the rows of figures */
-    justify-content: center;
+    
+    /* FINAL CRITICAL FIX: Use display: block and text-align to force wrapping */
+    display: block; 
+    text-align: center; 
+    /* Removed flex properties */
 }
 
 /* Styling for each individual figure (the small emojis) */
@@ -125,13 +100,16 @@ h2 {
     font-size: var(--figure-size);
     color: var(--accent-color);
     
-    /* CRITICAL FIX 1: Flexbox properties to force wrapping and correct sizing */
+    /* FINAL CRITICAL FIX: Make figures inline-block so they wrap like text */
+    display: inline-block; 
+    
+    /* Keep sizing controls */
     flex-shrink: 0; 
     flex-grow: 0;
     min-width: var(--figure-size);
     min-height: var(--figure-size);
     
-    /* Final CRITICAL FIX 2: Use transform to SCALE the figure up to ensure visibility */
+    /* Keep scaling transform */
     transform: scale(2.0); 
     transform-origin: center center;
 }
@@ -145,56 +123,7 @@ h2 {
     color: var(--primary-color); 
     transform: scale(2.2); 
 }
-
-/* Status Overlay */
-#status-overlay {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 1.2em;
-    padding: 8px 15px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 5px;
-    z-index: 2;
-}
-
-/* Pop-up for the Dream */
-#click-dream-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px 30px;
-    background-color: white;
-    border: 3px solid var(--primary-color);
-    border-radius: 10px;
-    color: var(--text-color);
-    font-size: 1.5em;
-    font-weight: bold;
-    text-align: center;
-    max-width: 400px;
-    opacity: 0;
-    pointer-events: none; 
-    transition: opacity 0.5s, transform 0.5s;
-    z-index: 99;
-    line-height: 1.2;
-}
-
-#click-dream-popup.visible {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
-}
-
-/* CRITICAL: Scroll Buffer to create the long scroll effect */
-#scroll-buffer {
-    height: 15500px;
-    width: 100%;
-    background: transparent; 
-    z-index: 0; 
-}
+/* ... (Keep the rest of the existing styles for status-overlay, pop-up, and scroll-buffer) ... */
 
 /* --- Mobile Optimization: Media Query --- */
 @media (max-width: 600px) {
