@@ -39,14 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. Define Layout Constants ---
     let scrollStart = 0;
     let totalScrollableDistance = 0;
-    // 'totalGridScroll' is no longer needed
+    // We don't need totalGridScroll, we'll calculate on the fly
 
     function calculateLayout() {
         if (!vizSection) return;
-        // When the animation STARTS (viz sticks)
         scrollStart = vizSection.offsetTop;
-        
-        // The total distance is the 500vh padding, converted to pixels
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
     }
@@ -67,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. Update visualization (now runs in rAF) ---
-    // This function is now MUCH simpler.
     function updateVisualization(scrollY) {
         
         // --- Ali Fade Logic ---
@@ -90,22 +86,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const figuresToReveal = Math.floor(progress * numFigures);
         
-        // --- SIMPLIFIED REVEAL LOOP ---
-        // We only care about revealing *new* figures when scrolling down.
+        // --- Reveal Loop ---
         if (figuresToReveal > lastRevealedIndex) {
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
+        } else if (figuresToReveal < lastRevealedIndex) {
+            // This is the "scroll-up" logic that breaks things.
+            // We'll *disable* it for stability.
+            // Figures will just stay revealed.
         }
-        // The 'else if' (scroll up) block is GONE.
         
-        lastRevealedIndex = figuresToReveal; 
+        // We now *always* set the index to the max revealed
+        // This prevents the "breaking on scroll-up" bug.
+        if (figuresToReveal > lastRevealedIndex) {
+            lastRevealedIndex = figuresToReveal; 
+        }
 
-        // --- ALL 'scrollTop' LOGIC IS GONE ---
-        // This removes the "empty screen" bug and the "scroll back" bug.
-        // The grid will now simply fill from the top.
+        // --- "FOLLOW THE ACTION" SCROLL LOGIC (THE FIX) ---
+        
+        // Find the *actual* last figure that was revealed
+        // (index is count - 1)
+        const lastFigure = figures[figuresToReveal - 1];
+        
+        if (lastFigure) {
+            // Calculate where the top of the grid needs to be
+            // to keep this last figure just in view at the bottom
+            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; // +20 for padding
+            
+            // Set the scroll position, ensuring it's not negative
+            vizSection.scrollTop = Math.max(0, newScrollTop);
+        
+        } else if (progress < 0.01) {
+             // If we're at the top, reset scroll to 0
+             vizSection.scrollTop = 0;
+        }
     }
 
     // --- Dream Pop-up Functions ---
