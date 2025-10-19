@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // --- 1. Create all figures (but keep them hidden) ---
+    // This can run early
     function createFigures() {
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < numFigures; i++) {
@@ -37,21 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 2. Define Layout Constants ---
-    // These are calculated once to avoid layout thrashing
     let scrollStart = 0;
     let totalScrollableDistance = 0;
     let totalGridScroll = 0;
 
+    // This function will now be called *after* all images/fonts load
     function calculateLayout() {
+        if (!vizSection) return;
         scrollStart = vizSection.offsetTop;
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
         
-        // Calculate the total scrollable height of the *grid* inside
         totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
     }
 
-    // --- 3. High-Performance Scroll Handling (THE FIX) ---
+    // --- 3. High-Performance Scroll Handling ---
     let lastScrollY = window.scrollY;
     let ticking = false;
 
@@ -106,9 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- SIMPLIFIED SYNC INTERNAL SCROLL ---
-        // This is much faster and less "jumpy".
-        // It scrolls the grid proportionally to the page scroll.
+        // --- SYNC INTERNAL SCROLL ---
         vizSection.scrollTop = totalGridScroll * progress;
     }
 
@@ -122,19 +121,24 @@ document.addEventListener('DOMContentLoaded', () => {
         dreamPopup.classList.add('hidden');
     });
 
-    // --- Initial Setup ---
+    // --- Initial Setup (THE FIX IS HERE) ---
+    
+    // 1. Create figures as soon as DOM is ready
     createFigures();
     
-    // Calculate layout *after* figures are created and DOM is ready
-    calculateLayout(); 
-    
-    // Run update once on load
-    requestAnimationFrame(() => updateVisualization(window.scrollY)); 
-    
-    // Add listeners
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', () => {
-        calculateLayout(); // Recalculate on resize
-        updateVisualization(window.scrollY);
-    }); 
+    // 2. Wait for *everything* (images, fonts) to load
+    window.addEventListener('load', () => {
+        // 3. NOW, calculate the layout
+        calculateLayout(); 
+        
+        // 4. Run update once to set the initial state
+        requestAnimationFrame(() => updateVisualization(window.scrollY)); 
+        
+        // 5. NOW, add the scroll and resize listeners
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', () => {
+            calculateLayout(); // Recalculate on resize
+            updateVisualization(window.scrollY);
+        }); 
+    });
 });
