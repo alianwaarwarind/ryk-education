@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const vizSection = document.getElementById('visualization-section');
     const outroSection = document.getElementById('outro-section');
     const figures = [];
-    let lastRevealedIndex = 0; // Start at 0
+    let lastRevealedIndex = 0; 
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
@@ -23,29 +23,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Create all figures (but keep them hidden) ---
     function createFigures() {
         const fragment = document.createDocumentFragment();
-
         for (let i = 0; i < numFigures; i++) {
             const span = document.createElement('span');
             span.className = 'figure';
             span.innerHTML = '🧍‍♂️'; 
-            
             span.addEventListener('click', () => {
                 showDream(dreams[Math.floor(Math.random() * dreams.length)]);
             });
-
             fragment.appendChild(span);
             figures.push(span);
         }
         container.appendChild(fragment);
     }
 
-    // --- 2. Update visualization based on scroll ---
+    // --- 2. Define Layout Constants (THE FIX) ---
+    // We define these variables *outside* the scroll function
+    // so they are not recalculated 60 times a second.
+    let scrollStart = 0;
+    let totalScrollableDistance = 0;
+
+    function calculateLayout() {
+        // When the animation STARTS (viz sticks)
+        scrollStart = vizSection.offsetTop;
+        
+        // The total distance is the 500vh padding, converted to pixels
+        const vhInPixels = window.innerHeight / 100;
+        totalScrollableDistance = 500 * vhInPixels;
+    }
+
+    // --- 3. Update visualization based on scroll ---
+    // This function is now very fast and only does math
     function updateVisualization() {
         const scrollY = window.scrollY;
 
         // --- Ali Fade Logic ---
         const introSection = document.getElementById('intro-section');
-        if (aliContainer && introSection) { // Check if elements exist
+        if (aliContainer && introSection) {
             const introBottom = introSection.offsetTop + introSection.offsetHeight;
             const aliFadeStart = aliContainer.offsetTop - window.innerHeight / 2;
             const aliFadeEnd = introBottom - window.innerHeight / 4; 
@@ -55,39 +68,25 @@ document.addEventListener('DOMContentLoaded', () => {
             aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
         }
 
-        // --- Figure Reveal Logic (FIXED) ---
-        if (!vizSection || !outroSection) return; 
+        // --- Figure Reveal Logic ---
+        if (!vizSection || !outroSection || totalScrollableDistance <= 0) return; 
 
-        // 1. When does the animation START?
-        //    When the top of the viz section hits the top of the viewport.
-        const scrollStart = vizSection.offsetTop;
-
-        // 2. When does the animation END?
-        //    When the top of the *outro content* hits the top of the viewport.
-        const outroContent = document.querySelector('.outro-content');
-        const scrollEnd = outroSection.offsetTop + outroContent.offsetTop;
-
-        // 3. What is the total scroll distance for the animation?
-        const totalScrollableDistance = scrollEnd - scrollStart;
-        
-        // 4. How far are we into the animation?
+        // How far are we into the animation?
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
 
-        // 5. How many figures should be visible?
+        // How many figures should be visible?
         const figuresToReveal = Math.floor(progress * numFigures);
         
         // --- CORRECTED REVEAL LOOP ---
         if (figuresToReveal > lastRevealedIndex) {
-            // User is scrolling down
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
         } else if (figuresToReveal < lastRevealedIndex) {
-            // User is scrolling up
             for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
                 if (figures[i]) {
                     figures[i].classList.remove('revealed');
@@ -101,12 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const lastFigure = figures[figuresToReveal - 1];
         
         if (lastFigure) {
-            // Scroll the grid to keep this exact figure in view
-            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; // +20 for padding
+            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20;
             vizSection.scrollTop = Math.max(0, newScrollTop);
-        
         } else if (progress < 0.01) {
-             // If we're at the top, reset scroll to 0
              vizSection.scrollTop = 0;
         }
     }
@@ -124,10 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Setup ---
     createFigures();
     
-    requestAnimationFrame(() => {
-        updateVisualization(); 
-    });
+    // Calculate layout *after* figures are created
+    calculateLayout(); 
     
+    // Run update once on load
+    requestAnimationFrame(updateVisualization); 
+    
+    // Add listeners
     window.addEventListener('scroll', updateVisualization, { passive: true });
-    window.addEventListener('resize', updateVisualization); 
+    window.addEventListener('resize', () => {
+        calculateLayout(); // Recalculate on resize
+        updateVisualization();
+    }); 
 });
