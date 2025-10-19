@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const vizSection = document.getElementById('visualization-section');
     const outroSection = document.getElementById('outro-section');
     const figures = [];
-    let lastRevealedIndex = -1; 
+    let lastRevealedIndex = -1; // Use -1 to make the 0-index logic work
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
@@ -55,54 +55,58 @@ document.addEventListener('DOMContentLoaded', () => {
              aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
         }
 
-        // --- Figure Reveal Logic (UPDATED) ---
+        // --- Figure Reveal Logic (FIXED) ---
         if (!vizSection || !outroSection) return; 
 
-        // The animation starts when the viz section sticks
         const scrollStart = vizSection.offsetTop;
-        
-        // --- THIS IS THE FIX ---
-        // The total scroll distance is the 500vh padding from the CSS,
-        // converted to pixels.
         const vhInPixels = window.innerHeight / 100;
         const totalScrollableDistance = 500 * vhInPixels; 
         
-        // Current distance scrolled *within the animation*
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
 
+        // Use 'figuresToReveal' as the *count* of figures
         const figuresToReveal = Math.floor(progress * numFigures);
         
-        // --- HIGH-PERFORMANCE REVEAL LOOP ---
+        // --- CORRECTED REVEAL LOOP ---
         if (figuresToReveal > lastRevealedIndex) {
+            // User is scrolling down
+            // Loop from the last revealed index up to the new one
             for (let i = lastRevealedIndex + 1; i < figuresToReveal; i++) {
-                if (figures[i] && !figures[i].classList.contains('revealed')) {
+                if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
         } else if (figuresToReveal < lastRevealedIndex) {
-            for (let i = figuresToReveal + 1; i <= lastRevealedIndex; i++) {
+            // User is scrolling up
+            // Loop from the new index up to the old one
+            for (let i = figuresToReveal; i <= lastRevealedIndex; i++) {
                 if (figures[i]) {
                     figures[i].classList.remove('revealed');
                 }
             }
         }
         
-        lastRevealedIndex = figuresToReveal;
+        lastRevealedIndex = figuresToReveal; // Update the tracker
 
-        // --- SYNC INTERNAL SCROLL (THE "EMPTY SCREEN" FIX) ---
-        const lastFigure = figures[lastRevealedIndex];
+        // --- CORRECTED SYNC INTERNAL SCROLL ---
+        
+        // Get the *actual last figure* based on the count (using index figuresToReveal - 1)
+        const lastFigure = figures[figuresToReveal - 1];
         
         if (lastFigure) {
+            // Manually reveal this last figure (which the loop skips)
             if (!lastFigure.classList.contains('revealed')) {
                  lastFigure.classList.add('revealed');
             }
             
-            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; 
+            // Scroll the grid to keep this exact figure in view
+            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; // +20 for padding
             vizSection.scrollTop = Math.max(0, newScrollTop);
         
         } else if (progress < 0.01) {
+             // If we're at the top, reset scroll to 0
              vizSection.scrollTop = 0;
         }
     }
