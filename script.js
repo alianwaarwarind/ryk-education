@@ -41,17 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let totalScrollableDistance = 0;
     let totalGridScroll = 0; // The max scrollTop of the grid
 
+    // This function will be called by the observer
     function calculateLayout() {
         if (!vizSection) return;
 
-        // --- THIS IS THE NEW "HALFWAY" TRIGGER LOGIC ---
-        // Animation starts when the box *first appears* at the bottom
-        scrollStart = vizSection.offsetTop - window.innerHeight;
-        // Animation ends when the box *hits the top*
-        const scrollEnd = vizSection.offsetTop;
+        // The animation starts when the black box hits the TOP
+        scrollStart = vizSection.offsetTop;
         
-        // The total track is the height of the viewport
-        totalScrollableDistance = scrollEnd - scrollStart; // This is just window.innerHeight
+        // The total scroll track is the 500vh padding
+        const vhInPixels = window.innerHeight / 100;
+        totalScrollableDistance = 500 * vhInPixels;
         
         // This is the total height the grid can scroll
         totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
@@ -89,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Figure Reveal Logic ---
         if (totalScrollableDistance <= 0) return; 
 
-        // Calculate progress along the *new* scroll track
+        // Calculate progress along the *correct* 500vh scroll track
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
@@ -115,8 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- "PROPORTIONAL" SCROLL LOGIC (THE "GLITCH" FIX) ---
-        // This is the fastest, most stable method.
+        // --- "PROPORTIONAL" SCROLL LOGIC (Fast & No Glitch) ---
         vizSection.scrollTop = totalGridScroll * progress;
     }
 
@@ -130,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dreamPopup.classList.add('hidden');
     });
 
-    // --- Initial Setup ---
+    // --- Initial Setup (THE FIX IS HERE) ---
     
     // 1. Create figures as soon as DOM is ready
     createFigures();
@@ -138,20 +136,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Wait for *everything* (images, fonts) to load
     window.addEventListener('load', () => {
         
-        // 3. Wait for ALL fonts to be 100% ready
-        document.fonts.ready.then(() => {
-            // 4. NOW, calculate the layout (it will be 100% accurate)
-            calculateLayout(); 
-            
-            // 5. Run update once to set the initial state
-            requestAnimationFrame(() => updateVisualization(window.scrollY)); 
-            
-            // 6. NOW, add the scroll and resize listeners
-            window.addEventListener('scroll', onScroll, { passive: true });
-            window.addEventListener('resize', () => {
-                calculateLayout(); // Recalculate on resize
-                updateVisualization(window.scrollY);
-            });
+        // 3. --- NEW: Use ResizeObserver ---
+        // This will watch for layout changes from fonts/emojis
+        // and recalculate the layout automatically.
+        const observer = new ResizeObserver(() => {
+            calculateLayout();
+        });
+
+        // Tell the observer to watch the intro section
+        if (introSection) {
+            observer.observe(introSection);
+        }
+
+        // 4. Calculate layout once *just in case*
+        calculateLayout(); 
+        
+        // 5. Run update once to set the initial state
+        requestAnimationFrame(() => updateVisualization(window.scrollY)); 
+        
+        // 6. NOW, add the scroll and resize listeners
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', () => {
+            calculateLayout(); // Recalculate on resize
+            updateVisualization(window.scrollY);
         });
     });
 });
