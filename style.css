@@ -1,139 +1,75 @@
-:root {
-    --primary-color: #e74c3c;
-    --accent-color: #f1c40f; 
-    --background-color: #f4f4f4;
-    --text-color: #2c3e50;
-    --dark-bg: #1a1a1a;
-}
-
-/* FINAL CRITICAL FIX 1: Set explicit height on html/body for sticky to work */
-html, body {
-    height: 100%; 
-    min-height: 100%;
-}
-
+/* General Setup */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
-    padding: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    scroll-behavior: smooth;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
 }
 
-/* General Story Section Styling */
-.story-section {
-    min-height: 100vh;
+/* Text Sections (Intro & Outro) */
+#intro-section,
+#outro-section {
+    max-width: 600px;
+    margin: 0 auto; /* Center the text containers */
+    padding: 20px;
+    background-color: white;
+    font-size: 1.2rem;
+    line-height: 1.8;
+}
+
+#intro-section {
+    padding-top: 50vh; /* Start intro text in the middle of the screen */
+    padding-bottom: 50vh;
+}
+
+#outro-section {
+    padding-top: 50vh;
+    padding-bottom: 50vh;
+    /* This is critical for the scrollytelling effect */
+    position: relative;
+    z-index: 2; /* Ensures outro scrolls OVER the sticky visualization */
+}
+
+/* Visualization Section */
+#visualization-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: black;
+    color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 50px 10%;
-    text-align: center;
-    background-color: var(--background-color);
-    
-    z-index: 10;
-    position: relative;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-h1 {
-    font-size: 2.5em;
-    color: var(--primary-color);
-    margin-bottom: 0.5em;
-}
-
-.data-point {
-    font-weight: 900;
-    color: var(--primary-color); 
-    font-size: 1.1em;
-}
-
-/* Ali's Figure Placeholder */
-#ali-figure-guaranteed {
-    width: 100px;
-    height: 100px;
-    margin: 20px auto;
-    background-color: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, sans-serif;
-}
-
-#ali-figure-guaranteed::before {
-    content: '🧍'; 
-    font-size: 8em; 
-    color: var(--accent-color); 
-}
-
-/* New section for the scroll calculation fix */
-#scroll-start-buffer {
-    height: 10vh; 
-    background: transparent;
-}
-
-/* Visualization Container Setup (The Sticky Black Box) */
-#visualization-section {
-    position: sticky; 
-    top: 0; /* CRITICAL: Ensures it sticks at the top */
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--dark-bg); /* This is the black box color */
     overflow: hidden;
-    
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    
-    z-index: 1; 
+    z-index: 1; /* Sits behind the outro, but sticks to the top */
 }
 
-#figure-container {
-    width: 95%; 
-    height: 95%; 
-    
-    /* FINAL CRITICAL FIX 2: Simplify display logic and rely on fixed width/height for wrapping */
-    padding-top: 5%;
-    padding-bottom: 5%;
-    
-    display: block; 
-    text-align: center; 
+/* The 'Ali' Figure */
+#ali {
+    font-size: 15rem;
+    opacity: 1;
+    transition: opacity 1s ease-out;
+    position: absolute; /* Keep Ali centered */
 }
 
-/* Styling for each individual figure */
-.child-figure {
-    width: 32px; 
-    height: 32px;
-    background-color: transparent;
-    border-radius: 0;
-    margin: 3px;
-    opacity: 0; 
-    transition: opacity 0.5s, transform 0.1s;
-    cursor: pointer;
-    
-    font-size: 16px; 
-    color: var(--accent-color);
-    display: inline-block;
-    
-    flex-shrink: 0; 
-    flex-grow: 0;
-    min-width: 32px; 
-    min-height: 32px;
-    
-    transform: scale(1.0);
-    transform-origin: center center;
+/* Container for the 5,000 figures */
+#visualization-container {
+    width: 90%;
+    max-width: 800px;
+    height: 80%;
+    position: relative; /* CRITICAL: For absolute positioning of figures */
+    overflow: hidden;
+    /* Removed flex properties, as figures are now positioned absolutely */
 }
 
-.child-figure::before {
-    content: '🧍'; 
-    font-family: "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+/* Individual Figure Styling */
+.figure {
+    font-size: 1.2rem;
+    line-height: 1;
+    color: #ffd700; /* Yellow color for figures */
+    position: absolute; /* Figures will be placed randomly */
+    opacity: 0;
+    transition: opacity 0.3s ease; /* Simple fade-in transition */
 }
-
-.child-figure:hover {
-    color: var(--primary-color); 
-    transform: scale(1.1);
-}
-/* ... (Keep the rest of the existing styles for overlays and media queries) ... */
