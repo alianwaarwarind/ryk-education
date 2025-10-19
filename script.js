@@ -2,35 +2,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const numFigures = 5000;
     const container = document.getElementById('visualization-container');
     const aliContainer = document.getElementById('ali-container');
-    const ali = document.getElementById('ali');
     const figures = [];
-    let lastRevealedIndex = -1; // Track the last figure revealed for the scroll effect
+    let lastRevealedIndex = -1; // Track the last figure revealed
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
     const closeDreamBtn = document.getElementById('close-dream');
 
     const dreams = [
-        "To become a pilot, soaring above the very fields where I now toil.",
-        "To build bridges and roads, connecting villages so no one feels isolated.",
-        "To teach others, sharing knowledge that was once denied to me.",
-        "To heal the sick, becoming a doctor and serving my community.",
-        "To be an engineer, designing new ways to bring water to dry lands.",
-        "To write stories, so the voices of children like me are heard.",
-        "To be an artist, painting the vibrant colors of my homeland.",
-        "To cultivate the best crops, ensuring food for every family.",
-        "To run a small shop, providing for my family and neighbors.",
-        "To invent something that makes life easier for everyone.",
-        "To sing and share music that brings joy to people's hearts.",
-        "To explore the world, beyond the boundaries of my village.",
-        "To play sports, representing my country and inspiring others.",
-        "To become a soldier, protecting my land and its people.",
-        "To care for animals, ensuring they are healthy and well-treated.",
-        "To cook delicious food that brings people together.",
-        "To lead, becoming a voice for the voiceless in my community.",
-        "To build beautiful homes, where families can live safely.",
-        "To stitch clothes, creating beauty and livelihood.",
-        "To use computers, connecting to a world of information."
+        "To become a pilot.",
+        "To build bridges.",
+        "To teach others.",
+        "To heal the sick.",
+        "To be an engineer.",
+        "To write stories.",
+        "To be an artist.",
+        "To grow food for everyone.",
+        "To run a small shop.",
+        "To invent something new.",
+        "To sing and share music.",
+        "To explore the world.",
+        "To play cricket for my country.",
+        "To become a soldier.",
+        "To care for animals.",
+        "To cook delicious food.",
+        "To be a leader for my community.",
+        "To build beautiful homes.",
+        "To stitch colorful clothes.",
+        "To use computers."
     ];
 
     // --- 1. Create all figures (but keep them hidden) ---
@@ -40,10 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < numFigures; i++) {
             const span = document.createElement('span');
             span.className = 'figure';
-            span.innerHTML = '🧍';
-            span.dataset.index = i; // Store index for potential targeting
+            span.innerHTML = '🧍‍♂️'; // Use consistent emoji
             
-            // Add click listener for dreams
             span.addEventListener('click', () => {
                 showDream(dreams[Math.floor(Math.random() * dreams.length)]);
             });
@@ -58,62 +55,55 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateVisualization() {
         const scrollY = window.scrollY;
 
-        // --- Ali Fade Logic (now using aliContainer) ---
-        // Fade Ali and his text out as the user scrolls past the intro section
+        // --- Ali Fade Logic ---
         const introSection = document.getElementById('intro-section');
         const introBottom = introSection.offsetTop + introSection.offsetHeight;
-        
-        // Ali should start fading when the top of aliContainer reaches the middle of the viewport
         const aliFadeStart = aliContainer.offsetTop - window.innerHeight / 2;
-        // And finish fading when the bottom of introSection leaves the viewport
         const aliFadeEnd = introBottom - window.innerHeight / 4; 
-
         const aliProgress = Math.min(1, Math.max(0, (scrollY - aliFadeStart) / (aliFadeEnd - aliFadeStart)));
-        aliContainer.style.opacity = (1 - aliProgress).toString();
-        // Adjust for visibility, Ali should still be in the document flow
-        aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
+        
+        if (aliContainer) { // Check if Ali container exists
+             aliContainer.style.opacity = (1 - aliProgress).toString();
+             aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
+        }
 
+        // --- Figure Reveal Logic (New and Optimized) ---
+        const vizWrapper = document.getElementById('visualization-wrapper');
+        if (!vizWrapper) return; // Exit if wrapper not found
 
-        // --- Figure Reveal Logic ---
-        const vizSection = document.getElementById('visualization-section');
-        const outroSection = document.getElementById('outro-section');
-
-        // The animation "active zone" is when the visualization section is sticky
-        // It starts when the top of the visualization section hits the top of the viewport
-        // and ends when the *top* of the outro section reaches the top of the viewport.
-        const scrollStart = vizSection.offsetTop;
-        const scrollEnd = outroSection.offsetTop; // When outro starts covering the sticky viz
-
-        const totalScrollableDistance = scrollEnd - scrollStart;
-
+        // The animation "active zone" is the height of the wrapper
+        const scrollStart = vizWrapper.offsetTop;
+        // The total scrollable distance is the wrapper's height minus one viewport height
+        // (because the animation is *done* when the wrapper's bottom hits the viewport's bottom)
+        const totalScrollableDistance = vizWrapper.offsetHeight - window.innerHeight;
+        
         // Calculate current scroll distance within the "active zone"
         let scrollDistanceInViz = scrollY - scrollStart;
 
-        // Clamp scroll distance
-        scrollDistanceInViz = Math.min(totalScrollableDistance, Math.max(0, scrollDistanceInViz));
-
         // Calculate progress as a percentage (0.0 to 1.0)
         let progress = scrollDistanceInViz / totalScrollableDistance;
+        
+        // Clamp progress between 0 and 1
         progress = Math.min(1, Math.max(0, progress));
 
-        // Determine how many figures should be revealed based on progress
-        // Using Math.ceil to ensure at least 1 figure appears for any progress > 0
-        const figuresToReveal = Math.ceil(progress * numFigures);
+        const figuresToReveal = Math.floor(progress * numFigures);
         
-        // --- "Fallen" style reveal: only add 'revealed' class to new figures ---
-        for (let i = 0; i < figuresToReveal; i++) {
-            if (figures[i] && !figures[i].classList.contains('revealed')) {
-                // Add a slight delay for the "drop-in" effect
-                setTimeout(() => {
+        // --- HIGH-PERFORMANCE REVEAL LOOP ---
+        // NO setTimeout. This just adds/removes classes.
+        
+        if (figuresToReveal > lastRevealedIndex) {
+            // User is scrolling down: Show new figures
+            for (let i = lastRevealedIndex + 1; i <= figuresToReveal; i++) {
+                if (figures[i]) {
                     figures[i].classList.add('revealed');
-                }, i * 2); // Small delay, e.g., 2ms per figure for a staggered effect
+                }
             }
-        }
-
-        // --- Hide figures if scrolling up ---
-        for (let i = figuresToReveal; i < numFigures; i++) {
-            if (figures[i] && figures[i].classList.contains('revealed')) {
-                figures[i].classList.remove('revealed');
+        } else if (figuresToReveal < lastRevealedIndex) {
+            // User is scrolling up: Hide figures
+            for (let i = figuresToReveal + 1; i <= lastRevealedIndex; i++) {
+                if (figures[i]) {
+                    figures[i].classList.remove('revealed');
+                }
             }
         }
         
@@ -122,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Dream Pop-up Functions ---
     function showDream(dream) {
-        dreamText.textContent = dream;
+        dreamText.textContent = `I dream... "${dream}"`;
         dreamPopup.classList.remove('hidden');
     }
 
@@ -133,9 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Setup ---
     createFigures();
     window.addEventListener('scroll', updateVisualization, { passive: true });
-    window.addEventListener('resize', updateVisualization); // Re-run on resize to adjust layout
-    updateVisualization(); // Run once on load to set initial state
-
-    // Ensure initial scroll position for the intro is pleasant
-    window.scrollTo(0, 0);
+    window.addEventListener('resize', updateVisualization); 
+    updateVisualization(); // Run once on load
 });
