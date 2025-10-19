@@ -43,15 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function calculateLayout() {
         if (!vizSection) return;
-
-        // --- THIS IS THE NEW "HALFWAY" TRIGGER LOGIC ---
-        // Animation starts when the box *first appears* at the bottom
-        scrollStart = vizSection.offsetTop - window.innerHeight;
-        // Animation ends when the box *hits the top*
-        const scrollEnd = vizSection.offsetTop;
+        // Animation starts when the black box hits the TOP
+        scrollStart = vizSection.offsetTop;
         
-        // The total track is the height of the viewport
-        totalScrollableDistance = scrollEnd - scrollStart; // This is just window.innerHeight
+        // The total scroll track is the 500vh padding
+        const vhInPixels = window.innerHeight / 100;
+        totalScrollableDistance = 500 * vhInPixels;
         
         // This is the total height the grid can scroll
         totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
@@ -89,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Figure Reveal Logic ---
         if (totalScrollableDistance <= 0) return; 
 
-        // Calculate progress along the *new* scroll track
+        // Calculate progress along the *correct* scroll track
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
@@ -115,8 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- "PROPORTIONAL" SCROLL LOGIC (THE "GLITCH" FIX) ---
-        // This is the fastest, most stable method.
+        // --- "PROPORTIONAL" SCROLL LOGIC (Fast & No Glitch) ---
         vizSection.scrollTop = totalGridScroll * progress;
     }
 
@@ -138,9 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Wait for *everything* (images, fonts) to load
     window.addEventListener('load', () => {
         
-        // 3. Wait for ALL fonts to be 100% ready
-        document.fonts.ready.then(() => {
-            // 4. NOW, calculate the layout (it will be 100% accurate)
+        // 3. --- THIS IS THE FIX ---
+        // Give the browser 500ms to finish all layout
+        // changes from fonts/emojis loading.
+        setTimeout(() => {
+            // 4. NOW, calculate the layout
             calculateLayout(); 
             
             // 5. Run update once to set the initial state
@@ -152,6 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculateLayout(); // Recalculate on resize
                 updateVisualization(window.scrollY);
             });
-        });
+        }, 500); // 500ms grace period
     });
 });
