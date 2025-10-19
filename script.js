@@ -39,21 +39,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. Define Layout Constants ---
     let scrollStart = 0;
     let totalScrollableDistance = 0;
-    let totalGridScroll = 0; // The max scrollTop of the grid
+    
+    let figureOffsetTops = []; 
+    let figureHeight = 0; 
+    let vizClientHeight = 0; 
 
-    // This function will be called by the observer
     function calculateLayout() {
         if (!vizSection) return;
-
-        // The animation starts when the black box hits the TOP
+        // This is now guaranteed to be the *correct* final value
         scrollStart = vizSection.offsetTop;
         
-        // The total scroll track is the 500vh padding
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
         
-        // This is the total height the grid can scroll
-        totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
+        vizClientHeight = vizSection.clientHeight; 
+        figureOffsetTops = []; 
+        
+        for (let i = 0; i < figures.length; i++) {
+            figureOffsetTops[i] = figures[i].offsetTop;
+        }
+        
+        if (figures[0]) {
+            figureHeight = figures[0].offsetHeight;
+        }
     }
 
     // --- 3. High-Performance Scroll Handling ---
@@ -88,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Figure Reveal Logic ---
         if (totalScrollableDistance <= 0) return; 
 
-        // Calculate progress along the *correct* 500vh scroll track
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
@@ -97,14 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- Reveal Loop ---
         if (figuresToReveal > lastRevealedIndex) {
-            // Scrolling down
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
         } else if (figuresToReveal < lastRevealedIndex) {
-            // Scrolling up
             for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
                 if (figures[i]) {
                     figures[i].classList.remove('revealed');
@@ -114,8 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- "PROPORTIONAL" SCROLL LOGIC (Fast & No Glitch) ---
-        vizSection.scrollTop = totalGridScroll * progress;
+        // --- "FOLLOW" LOGIC USING PRE-CALCULATED VALUES ---
+        const lastFigureOffset = figureOffsetTops[figuresToReveal - 1];
+        
+        if (lastFigureOffset !== undefined) {
+            const newScrollTop = lastFigureOffset - vizClientHeight + figureHeight + 20;
+            vizSection.scrollTop = Math.max(0, newScrollTop);
+        } else if (progress < 0.01) {
+             vizSection.scrollTop = 0;
+        }
     }
 
     // --- Dream Pop-up Functions ---
@@ -133,32 +145,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Create figures as soon as DOM is ready
     createFigures();
     
-    // 2. Wait for *everything* (images, fonts) to load
+    // 2. Wait for *everything* (images, etc.) to load
     window.addEventListener('load', () => {
         
-        // 3. --- NEW: Use ResizeObserver ---
-        // This will watch for layout changes from fonts/emojis
-        // and recalculate the layout automatically.
-        const observer = new ResizeObserver(() => {
-            calculateLayout();
-        });
-
-        // Tell the observer to watch the intro section
-        if (introSection) {
-            observer.observe(introSection);
-        }
-
-        // 4. Calculate layout once *just in case*
-        calculateLayout(); 
-        
-        // 5. Run update once to set the initial state
-        requestAnimationFrame(() => updateVisualization(window.scrollY)); 
-        
-        // 6. NOW, add the scroll and resize listeners
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', () => {
-            calculateLayout(); // Recalculate on resize
-            updateVisualization(window.scrollY);
+        // 3. --- NEW: Wait for ALL fonts to be 100% ready ---
+        document.fonts.ready.then(() => {
+            // 4. NOW, calculate the layout (it will be 100% accurate)
+            calculateLayout(); 
+            
+            // 5. Run update once to set the initial state
+            requestAnimationFrame(() => updateVisualization(window.scrollY)); 
+            
+            // 6. NOW, add the scroll and resize listeners
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', () => {
+                calculateLayout(); // Recalculate on resize
+                updateVisualization(window.scrollY);
+            });
         });
     });
 });
