@@ -3,34 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rahim Yar Khan - The 451,123</title>
+    <title>The Cost of Not Learning: Rahim Yar Khan</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <header>
+        <h1>The Cost of Not Learning: Rahim Yar Khan</h1>
+    </header>
+
     <section id="intro-section">
-        <p>In Rahim Yar Khan, a district vibrant with life, there are <strong>451,123</strong> children who have never, not even once, stepped inside a school.</p>
-        <p>This isn't just a statistic. It's a generation of silent potential.</p>
-        <p>It's 451,123 stories unwritten, 451,123 futures dimmed before they can begin.</p>
+        <p>In the district of Rahim Yar Khan, a staggering <strong>673,000 children</strong> between the ages of 5 and 16 are currently out of school.</p>
+        <p>But a statistic is not just a number. It is a child. It is a dream.</p>
+        <div id="ali-container">
+            <span id="ali">🧍</span>
+            <p class="ali-text">Meet Ali. He represents just one of these children. His dreams are of becoming a pilot, soaring above the very fields where he now toils, never having stepped inside a classroom.</p>
+        </div>
         <p>We often see numbers, but we rarely feel their weight. Let's try to visualize just a fraction of that number.</p>
         <p>Scroll down.</p>
     </section>
 
     <section id="visualization-section">
-        <div id="ali">🧍</div>
         <div id="visualization-container">
             </div>
     </section>
 
     <section id="outro-section">
-        <p>This is Ali. He represents one of them.</p>
-        <p>As you scrolled, 5,000 figures appeared. Each one represents almost <strong>90 children</strong>.</p>
-        <p>They aren't just figures on a screen. They are children waiting for a chance.</p>
+        <p>This is the harsh reality. Each figure you see represents a life, a dream, a future unwritten.</p>
         <p>The scale of the problem is immense, but it is not invisible. Not anymore.</p>
-        <p>What we do next matters. Their future is our shared responsibility.</p>
-        <p>---</p>
-        <p><em>A project to bring visibility to the education crisis in Rahim Yar Khan.</em></p>
+        <p>Their future is our shared responsibility. What we do next matters.</p>
+        <p class="source-info"><em>Data Source: UNICEF Pakistan, 2023. This visualization represents a fraction (5,000) of the actual 673,000 children.</em></p>
     </section>
+
+    <div id="dream-popup" class="hidden">
+        <p id="dream-text"></p>
+        <button id="close-dream">Close</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
