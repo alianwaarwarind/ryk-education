@@ -6,9 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const vizSection = document.getElementById('visualization-section');
     const outroSection = document.getElementById('outro-section');
     const figures = [];
-    
-    // UPDATED: Initialize to 0
-    let lastRevealedIndex = 0; 
+    let lastRevealedIndex = 0; // Start at 0
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
@@ -47,34 +45,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Ali Fade Logic ---
         const introSection = document.getElementById('intro-section');
-        const introBottom = introSection.offsetTop + introSection.offsetHeight;
-        const aliFadeStart = aliContainer.offsetTop - window.innerHeight / 2;
-        const aliFadeEnd = introBottom - window.innerHeight / 4; 
-        const aliProgress = Math.min(1, Math.max(0, (scrollY - aliFadeStart) / (aliFadeEnd - aliFadeStart)));
-        
-        if (aliContainer) { 
-             aliContainer.style.opacity = (1 - aliProgress).toString();
-             aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
+        if (aliContainer && introSection) { // Check if elements exist
+            const introBottom = introSection.offsetTop + introSection.offsetHeight;
+            const aliFadeStart = aliContainer.offsetTop - window.innerHeight / 2;
+            const aliFadeEnd = introBottom - window.innerHeight / 4; 
+            const aliProgress = Math.min(1, Math.max(0, (scrollY - aliFadeStart) / (aliFadeEnd - aliFadeStart)));
+            
+            aliContainer.style.opacity = (1 - aliProgress).toString();
+            aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
         }
 
         // --- Figure Reveal Logic (FIXED) ---
         if (!vizSection || !outroSection) return; 
 
+        // 1. When does the animation START?
+        //    When the top of the viz section hits the top of the viewport.
         const scrollStart = vizSection.offsetTop;
-        const vhInPixels = window.innerHeight / 100;
-        const totalScrollableDistance = 500 * vhInPixels; 
+
+        // 2. When does the animation END?
+        //    When the top of the *outro content* hits the top of the viewport.
+        const outroContent = document.querySelector('.outro-content');
+        const scrollEnd = outroSection.offsetTop + outroContent.offsetTop;
+
+        // 3. What is the total scroll distance for the animation?
+        const totalScrollableDistance = scrollEnd - scrollStart;
         
+        // 4. How far are we into the animation?
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
 
-        // This is a *count* of figures to show (e.g., 111)
+        // 5. How many figures should be visible?
         const figuresToReveal = Math.floor(progress * numFigures);
         
         // --- CORRECTED REVEAL LOOP ---
         if (figuresToReveal > lastRevealedIndex) {
             // User is scrolling down
-            // Loop from the last index (e.g., 0) up to the new count (e.g., 111)
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
@@ -82,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (figuresToReveal < lastRevealedIndex) {
             // User is scrolling up
-            // Loop from the new count (e.g., 111) up to the old index (e.g., 120)
             for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
                 if (figures[i]) {
                     figures[i].classList.remove('revealed');
@@ -90,13 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Update the tracker to the new count
         lastRevealedIndex = figuresToReveal; 
 
         // --- CORRECTED SYNC INTERNAL SCROLL ---
-        
-        // Get the *actual last figure* based on the count
-        // (index is count - 1)
         const lastFigure = figures[figuresToReveal - 1];
         
         if (lastFigure) {
