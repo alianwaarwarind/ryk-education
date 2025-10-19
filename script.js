@@ -4,33 +4,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const aliContainer = document.getElementById('ali-container');
     const vizSection = document.getElementById('visualization-section');
     const figures = [];
-    let lastRevealedIndex = -1; // Track the last figure revealed
+    let lastRevealedIndex = -1; 
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
     const closeDreamBtn = document.getElementById('close-dream');
 
+    // UPDATED: Changed to noun phrases for better formatting in the popup
     const dreams = [
-        "To become a pilot.",
-        "To build bridges.",
-        "To teach others.",
-        "To heal the sick.",
-        "To be an engineer.",
-        "To write stories.",
-        "To be an artist.",
-        "To grow food for everyone.",
-        "To run a small shop.",
-        "To invent something new.",
-        "To sing and share music.",
-        "To explore the world.",
-        "To play cricket for my country.",
-        "To become a soldier.",
-        "To care for animals.",
-        "To cook delicious food.",
-        "To be a leader for my community.",
-        "To build beautiful homes.",
-        "To stitch colorful clothes.",
-        "To use computers."
+        "a pilot",
+        "a bridge builder",
+        "a teacher",
+        "a doctor",
+        "an engineer",
+        "a writer",
+        "an artist",
+        "a farmer who feeds everyone",
+        "a shop owner",
+        "an inventor",
+        "a musician",
+        "an explorer",
+        "a cricket star",
+        "a soldier",
+        "a veterinarian",
+        "a chef",
+        "a leader for my community",
+        "a home builder",
+        "a tailor",
+        "a computer expert"
     ];
 
     // --- 1. Create all figures (but keep them hidden) ---
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < numFigures; i++) {
             const span = document.createElement('span');
             span.className = 'figure';
-            span.innerHTML = '🧍‍♂️'; // Use consistent emoji
+            span.innerHTML = '🧍‍♂️'; 
             
             span.addEventListener('click', () => {
                 showDream(dreams[Math.floor(Math.random() * dreams.length)]);
@@ -98,20 +99,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal;
 
-        // --- UPDATED: SYNC INTERNAL SCROLL ---
-        // This logic now scrolls the container to keep the
-        // "action line" (new figures) at the BOTTOM of the screen.
+        // --- REVERTED: SYNC INTERNAL SCROLL ---
+        // This is the correct logic. It scrolls the grid up
+        // as you scroll down, keeping the "action line"
+        // (the newest figures) in view.
         
-        // Calculate how far to scroll: (total grid height * progress) - (viewport height)
-        const newScrollTop = (vizSection.scrollHeight * progress) - vizSection.clientHeight;
-        
-        // Set the scroll position, ensuring it's not negative
-        vizSection.scrollTop = Math.max(0, newScrollTop);
+        const totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
+        vizSection.scrollTop = totalGridScroll * progress;
     }
 
     // --- Dream Pop-up Functions ---
+    // UPDATED: Changed text to be more sensitive
     function showDream(dream) {
-        dreamText.textContent = `I dream... "${dream}"`;
+        dreamText.textContent = `"I dream of becoming ${dream}..."`;
         dreamPopup.classList.remove('hidden');
     }
 
@@ -122,8 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Setup ---
     createFigures();
     
-    // Use requestAnimationFrame to ensure layout is calculated *before*
-    // the first run of updateVisualization
     requestAnimationFrame(() => {
         updateVisualization(); 
     });
