@@ -79,13 +79,18 @@ h1 {
 /* --- SCROLL LAYOUT --- */
 
 /* 1. The Wrapper (The "Scroll Track")
-   This element's height controls the animation speed.
-   Increased from 500vh to 1000vh to make the scroll
-   animation twice as long and feel more gradual.
+   
+   THIS IS THE FIX:
+   
+   Changed from 1000vh to a massive 150,000px.
+   This forces a very long scroll, making the reveal
+   of 5,000 figures feel smooth and gradual instead
+   of appearing in one "bump". This works consistently
+   across PC and mobile.
 */
 #visualization-wrapper {
     position: relative;
-    height: 1000vh; /* ADJUST THIS VALUE to fine-tune scroll speed */
+    height: 150000px; /* 150,000px */
     z-index: 1;
 }
 
