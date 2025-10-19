@@ -86,7 +86,9 @@ h1 {
 
 /* --- SCROLL LAYOUT --- */
 
-/* 2. The Visualization (The Black Box) */
+/* 2. The Visualization (The Black Box)
+   UPDATED: overflow is now 'hidden'
+*/
 #visualization-section {
     position: sticky;
     top: 0;
@@ -96,30 +98,17 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow-y: auto;
-    z-index: 1; /* Sits BEHIND the outro content */
-    
-    &::-webkit-scrollbar {
-        display: none;
-    }
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    overflow: hidden; /* IMPORTANT: Clips the moving container */
+    z-index: 1; 
 }
 
-/* 3. The Outro (THE FIX IS HERE)
-   This is the *transparent scroll track*.
-   The background-color and z-index are REMOVED.
-*/
+/* 3. The Outro (Scroll Track) */
 #outro-section {
     position: relative; 
-    /* z-index: 2; <-- REMOVED */
-    /* background-color: white; <-- REMOVED */
     padding-top: 500vh;
 }
 
-/* This div holds the actual text.
-   THIS is now the white overlay.
-*/
+/* The white overlay */
 .outro-content {
     max-width: 700px;
     margin: 0 auto;
@@ -127,12 +116,9 @@ h1 {
     font-size: 1.15rem;
     line-height: 1.8;
     text-align: center;
-    
-    /* --- ADDED/MOVED HERE --- */
-    position: relative; /* Needed for z-index */
-    z-index: 2; /* Sits ON TOP of the sticky viz */
-    background-color: white; /* This is the white overlay */
-    
+    position: relative; 
+    z-index: 2; 
+    background-color: white; 
     box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
 }
 
@@ -145,7 +131,9 @@ h1 {
 /* --- END SCROLL LAYOUT --- */
 
 
-/* Container for the 500 figures */
+/* Container for the 500 figures
+   UPDATED: Added will-change
+*/
 #visualization-container {
     width: 90%;
     max-width: 1000px; 
@@ -155,19 +143,21 @@ h1 {
     gap: 5px; 
     padding: 20px;
     justify-content: center; 
-    align-content: start; /* Fills from the top */
+    align-content: start; 
+    /* Hint to the browser to use the GPU */
+    will-change: transform;
 }
 
-/* Individual Figure Styling */
+/* Individual Figure Styling
+   UPDATED: Simplified for performance
+*/
 .figure {
     font-size: var(--figure-size);
     line-height: 1;
     color: var(--accent-color); 
     cursor: pointer; 
-    opacity: 0; 
-    transform: translateY(-20px) scale(0.9);
-    transition: opacity 0.3s ease-out, transform 0.3s ease-out; 
-    will-change: opacity, transform; 
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.3s ease; /* Simple fade in */
     display: flex; 
     justify-content: center;
     align-items: center;
@@ -175,10 +165,10 @@ h1 {
 
 .figure.revealed {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    /* Transform animation is removed */
 }
 
-/* Dream Pop-up */
+/* Dream Pop-up ... (no changes) */
 #dream-popup {
     position: fixed;
     top: 50%;
