@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const vizSection = document.getElementById('visualization-section');
     const introSection = document.getElementById('intro-section');
     const figures = [];
-    let lastRevealedIndex = 0; 
+    // lastRevealedIndex is NO LONGER NEEDED
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
@@ -21,15 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // --- 1. Create all figures (but keep them hidden) ---
-    // This can run early
     function createFigures() {
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < numFigures; i++) {
             const span = document.createElement('span');
-            span.className = 'figure';
+            span.className = 'figure'; // Start hidden
             span.innerHTML = '🧍‍♂️'; 
             span.addEventListener('click', () => {
-                showDream(dreams[Math.floor(Math.random() * dreams.length)]);
+                showDream(dreams[Math.floor(Math.random * dreams.length)]);
             });
             fragment.appendChild(span);
             figures.push(span);
@@ -42,14 +41,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let totalScrollableDistance = 0;
     let totalGridScroll = 0;
 
-    // This function will now be called *after* all images/fonts load
     function calculateLayout() {
-        if (!vizSection) return;
+        if (!vizSection || !container) return;
         scrollStart = vizSection.offsetTop;
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
         
-        totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
+        // Calculate the total scrollable height of the *grid* inside
+        totalGridScroll = container.offsetHeight - vizSection.clientHeight;
+        
+        // --- NEW ---
+        // Reveal all figures at once (they are hidden by opacity 0)
+        // and add a staggered transition delay
+        figures.forEach((figure, i) => {
+            // Stagger the fade-in
+            figure.style.transitionDelay = `${(i * 1.5)}ms`; 
+            figure.classList.add('revealed');
+        });
     }
 
     // --- 3. High-Performance Scroll Handling ---
@@ -68,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. Update visualization (now runs in rAF) ---
+    // THIS IS NOW MUCH SIMPLER AND FASTER
     function updateVisualization(scrollY) {
         
         // --- Ali Fade Logic ---
@@ -88,27 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
 
-        const figuresToReveal = Math.floor(progress * numFigures);
-        
-        // --- Reveal Loop ---
-        if (figuresToReveal > lastRevealedIndex) {
-            for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
-                if (figures[i]) {
-                    figures[i].classList.add('revealed');
-                }
-            }
-        } else if (figuresToReveal < lastRevealedIndex) {
-            for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
-                if (figures[i]) {
-                    figures[i].classList.remove('revealed');
-                }
-            }
-        }
-        
-        lastRevealedIndex = figuresToReveal; 
+        // --- ALL LOOPS ARE GONE ---
 
-        // --- SYNC INTERNAL SCROLL ---
-        vizSection.scrollTop = totalGridScroll * progress;
+        // --- UPDATED: TRANSFORM INSTEAD OF SCROLLTOP ---
+        // This is hardware-accelerated and smooth
+        const scrollAmount = totalGridScroll * progress;
+        container.style.transform = `translateY(-${scrollAmount}px)`;
     }
 
     // --- Dream Pop-up Functions ---
@@ -121,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dreamPopup.classList.add('hidden');
     });
 
-    // --- Initial Setup (THE FIX IS HERE) ---
+    // --- Initial Setup ---
     
     // 1. Create figures as soon as DOM is ready
     createFigures();
@@ -132,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateLayout(); 
         
         // 4. Run update once to set the initial state
-        requestAnimationFrame(() => updateVisualization(window.scrollY)); 
+        requestAnimationFrame(()_=> updateVisualization(window.scrollY)); 
         
         // 5. NOW, add the scroll and resize listeners
         window.addEventListener('scroll', onScroll, { passive: true });
