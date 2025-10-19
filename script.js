@@ -40,10 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let scrollStart = 0;
     let totalScrollableDistance = 0;
     
-    // --- NEW: Pre-calculated positions ---
-    let figureOffsetTops = []; // Array to store all 'offsetTop' values
-    let figureHeight = 0; // Store the height of a single figure
-    let vizClientHeight = 0; // Store the height of the black box
+    // Pre-calculated positions
+    let figureOffsetTops = []; 
+    let figureHeight = 0; 
+    let vizClientHeight = 0; 
 
     function calculateLayout() {
         if (!vizSection) return;
@@ -51,15 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
         
-        vizClientHeight = vizSection.clientHeight; // Store viewport height
-        figureOffsetTops = []; // Clear the array
+        vizClientHeight = vizSection.clientHeight; 
+        figureOffsetTops = []; 
         
-        // Pre-calculate all positions
         for (let i = 0; i < figures.length; i++) {
             figureOffsetTops[i] = figures[i].offsetTop;
         }
         
-        // Store the height of the first figure (assumes all are same)
         if (figures[0]) {
             figureHeight = figures[0].offsetHeight;
         }
@@ -120,16 +118,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- "FOLLOW" LOGIC USING PRE-CALCULATED VALUES (THE FIX) ---
-        
-        // 1. Get the pre-calculated offset for the last figure
+        // --- "FOLLOW" LOGIC USING PRE-CALCULATED VALUES ---
         const lastFigureOffset = figureOffsetTops[figuresToReveal - 1];
         
         if (lastFigureOffset !== undefined) {
-            // 2. Use the stored values (fast)
-            const newScrollTop = lastFigureOffset - vizClientHeight + figureHeight + 20; // +20 for padding
+            const newScrollTop = lastFigureOffset - vizClientHeight + figureHeight + 20;
             vizSection.scrollTop = Math.max(0, newScrollTop);
-        
         } else if (progress < 0.01) {
              vizSection.scrollTop = 0;
         }
@@ -153,7 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Wait for *everything* (images, fonts) to load
     window.addEventListener('load', () => {
         
-        // 3. --- Wait an extra 100ms ---
+        // 3. --- THIS IS THE FIX ---
+        // Give the browser 500ms to finish all layout
+        // changes from fonts/emojis loading.
         setTimeout(() => {
             // 4. NOW, calculate the layout
             calculateLayout(); 
@@ -167,6 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculateLayout(); // Recalculate on resize
                 updateVisualization(window.scrollY);
             });
-        }, 100); // 100ms grace period
+        }, 500); // 500ms grace period
     });
 });
