@@ -1,33 +1,93 @@
 /* General Setup */
+:root {
+    --primary-text: #333;
+    --secondary-text: #666;
+    --accent-color: #ffd700; /* Gold */
+    --background-light: #f5f5f5;
+    --background-dark: #222;
+    --figure-size: 2rem; /* Make figures larger */
+}
+
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-light);
+    color: var(--primary-text);
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: var(--primary-text);
+    margin: 0;
 }
 
 /* Text Sections (Intro & Outro) */
 #intro-section,
 #outro-section {
-    max-width: 600px;
-    margin: 0 auto; /* Center the text containers */
-    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 80px 20px; /* More vertical padding */
     background-color: white;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     line-height: 1.8;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: relative; /* For z-index context */
 }
 
 #intro-section {
-    padding-top: 50vh; /* Start intro text in the middle of the screen */
-    padding-bottom: 50vh;
+    padding-top: 100px; /* Start below header */
+    padding-bottom: 100px;
+    z-index: 3; /* Ensure intro text is above everything initially */
 }
 
 #outro-section {
-    padding-top: 50vh;
-    padding-bottom: 50vh;
-    /* This is critical for the scrollytelling effect */
+    padding-top: 150vh; /* Give ample space for figures before outro covers */
+    padding-bottom: 100px;
+    background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent to hint at figures behind */
+    color: var(--primary-text);
     position: relative;
-    z-index: 2; /* Ensures outro scrolls OVER the sticky visualization */
+    z-index: 2; /* Ensures outro scrolls OVER visualization */
+}
+
+.source-info {
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    margin-top: 40px;
+}
+
+/* The 'Ali' Figure */
+#ali-container {
+    margin: 50px auto;
+    text-align: center;
+    position: relative;
+}
+
+#ali {
+    font-size: 12rem; /* Larger Ali */
+    line-height: 1;
+    display: inline-block;
+    opacity: 1;
+    transition: opacity 0.8s ease-out;
+    margin-bottom: 20px;
+}
+
+.ali-text {
+    font-style: italic;
+    color: var(--secondary-text);
+    max-width: 500px;
+    margin: 0 auto;
+    font-size: 1.1rem;
 }
 
 /* Visualization Section */
@@ -36,40 +96,86 @@ body {
     top: 0;
     width: 100%;
     height: 100vh;
-    background-color: black;
-    color: white;
+    background-color: var(--background-dark); /* Dark background for contrast */
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    z-index: 1; /* Sits behind the outro, but sticks to the top */
-}
-
-/* The 'Ali' Figure */
-#ali {
-    font-size: 15rem;
-    opacity: 1;
-    transition: opacity 1s ease-out;
-    position: absolute; /* Keep Ali centered */
+    z-index: 1; /* Sits behind outro, sticks to top */
 }
 
 /* Container for the 5,000 figures */
 #visualization-container {
     width: 90%;
-    max-width: 800px;
-    height: 80%;
-    position: relative; /* CRITICAL: For absolute positioning of figures */
-    overflow: hidden;
-    /* Removed flex properties, as figures are now positioned absolutely */
+    max-width: 1000px; /* Max width for the grid */
+    height: 90%;
+    display: grid; /* Use CSS Grid for organized layout */
+    grid-template-columns: repeat(auto-fill, minmax(var(--figure-size), 1fr)); /* Responsive grid */
+    grid-auto-rows: var(--figure-size); /* Maintain aspect ratio */
+    gap: 5px; /* Small gap between figures */
+    padding: 20px;
+    align-content: start; /* Align content to the top */
+    justify-content: center; /* Center the grid items */
+    position: relative; /* For absolute positioning of figures if needed, but grid usually handles it */
 }
 
 /* Individual Figure Styling */
 .figure {
-    font-size: 1.2rem;
+    font-size: var(--figure-size);
     line-height: 1;
-    color: #ffd700; /* Yellow color for figures */
-    position: absolute; /* Figures will be placed randomly */
-    opacity: 0;
-    transition: opacity 0.3s ease; /* Simple fade-in transition */
+    color: var(--accent-color); /* Gold color */
+    cursor: pointer; /* Indicate clickability */
+    opacity: 0; /* Start hidden */
+    transform: translateY(-50px) scale(0.8); /* Start slightly above and smaller */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* Animation for drop-in */
+    will-change: opacity, transform; /* Optimize for animation */
+    display: flex; /* Ensure emoji is centered within its grid cell */
+    justify-content: center;
+    align-items: center;
+}
+
+.figure.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Dream Pop-up */
+#dream-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 100; /* Ensure it's on top */
+    max-width: 400px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+#dream-popup.hidden {
+    display: none;
+}
+
+#dream-text {
+    margin-bottom: 20px;
+    color: var(--primary-text);
+}
+
+#close-dream {
+    background-color: var(--primary-text);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#close-dream:hover {
+    background-color: #555;
 }
