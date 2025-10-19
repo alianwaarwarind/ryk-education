@@ -39,7 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. Define Layout Constants ---
     let scrollStart = 0;
     let totalScrollableDistance = 0;
-    let totalGridScroll = 0; // The max scrollTop of the grid
+    
+    // --- NEW: Pre-calculated positions ---
+    let figureOffsetTops = []; // Array to store all 'offsetTop' values
+    let figureHeight = 0; // Store the height of a single figure
+    let vizClientHeight = 0; // Store the height of the black box
 
     function calculateLayout() {
         if (!vizSection) return;
@@ -47,8 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
         
-        // This is the total height the grid can scroll
-        totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
+        vizClientHeight = vizSection.clientHeight; // Store viewport height
+        figureOffsetTops = []; // Clear the array
+        
+        // Pre-calculate all positions
+        for (let i = 0; i < figures.length; i++) {
+            figureOffsetTops[i] = figures[i].offsetTop;
+        }
+        
+        // Store the height of the first figure (assumes all are same)
+        if (figures[0]) {
+            figureHeight = figures[0].offsetHeight;
+        }
     }
 
     // --- 3. High-Performance Scroll Handling ---
@@ -91,14 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- Reveal Loop ---
         if (figuresToReveal > lastRevealedIndex) {
-            // Scrolling down
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
         } else if (figuresToReveal < lastRevealedIndex) {
-            // Scrolling up
             for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
                 if (figures[i]) {
                     figures[i].classList.remove('revealed');
@@ -108,10 +120,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- "PROPORTIONAL" SCROLL LOGIC (THE FIX) ---
-        // This is the fastest, most stable method.
-        // It's performant on mobile and won't jump.
-        vizSection.scrollTop = totalGridScroll * progress;
+        // --- "FOLLOW" LOGIC USING PRE-CALCULATED VALUES (THE FIX) ---
+        
+        // 1. Get the pre-calculated offset for the last figure
+        const lastFigureOffset = figureOffsetTops[figuresToReveal - 1];
+        
+        if (lastFigureOffset !== undefined) {
+            // 2. Use the stored values (fast)
+            const newScrollTop = lastFigureOffset - vizClientHeight + figureHeight + 20; // +20 for padding
+            vizSection.scrollTop = Math.max(0, newScrollTop);
+        
+        } else if (progress < 0.01) {
+             vizSection.scrollTop = 0;
+        }
     }
 
     // --- Dream Pop-up Functions ---
@@ -133,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('load', () => {
         
         // 3. --- Wait an extra 100ms ---
-        // This gives fonts/images a final chance to reflow
         setTimeout(() => {
             // 4. NOW, calculate the layout
             calculateLayout(); 
