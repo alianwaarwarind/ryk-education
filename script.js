@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // UPDATED: Reduced from 5000 to 500
     const numFigures = 500;
     
     const container = document.getElementById('visualization-container');
     const aliContainer = document.getElementById('ali-container');
     const vizSection = document.getElementById('visualization-section');
+    const outroSection = document.getElementById('outro-section'); // <-- ADDED
     const figures = [];
     let lastRevealedIndex = -1; 
 
@@ -55,13 +55,16 @@ document.addEventListener('DOMContentLoaded', () => {
              aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
         }
 
-        // --- Figure Reveal Logic ---
-        const vizWrapper = document.getElementById('visualization-wrapper');
-        if (!vizWrapper || !vizSection) return; 
+        // --- Figure Reveal Logic (UPDATED) ---
+        if (!vizSection || !outroSection) return; 
 
-        const scrollStart = vizWrapper.offsetTop;
-        const totalScrollableDistance = vizWrapper.offsetHeight - window.innerHeight;
+        // The animation starts when the viz section sticks
+        const scrollStart = vizSection.offsetTop;
         
+        // The total scroll distance is the height of the outro section's padding
+        const totalScrollableDistance = outroSection.offsetHeight - window.innerHeight;
+        
+        // Current distance scrolled *within the animation*
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
@@ -70,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- HIGH-PERFORMANCE REVEAL LOOP ---
         if (figuresToReveal > lastRevealedIndex) {
-            for (let i = lastRevealedIndex + 1; i < figuresToReveal; i++) { // Use '<' to stop before the last one
+            for (let i = lastRevealedIndex + 1; i < figuresToReveal; i++) {
                 if (figures[i] && !figures[i].classList.contains('revealed')) {
                     figures[i].classList.add('revealed');
                 }
@@ -85,27 +88,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal;
 
-        // --- UPDATED: SYNC INTERNAL SCROLL (THE "EMPTY SCREEN" FIX) ---
-        
-        // Find the last figure that should be visible
+        // --- SYNC INTERNAL SCROLL (THE "EMPTY SCREEN" FIX) ---
         const lastFigure = figures[lastRevealedIndex];
         
         if (lastFigure) {
-            // Add the 'revealed' class to this specific figure
-            // (we skipped it in the loop)
             if (!lastFigure.classList.contains('revealed')) {
                  lastFigure.classList.add('revealed');
             }
-
-            // Calculate where the top of the grid needs to be
-            // to keep this last figure just in view at the bottom
-            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; // +20 for padding
             
-            // Set the scroll position, ensuring it's not negative
+            // Scroll the grid to keep the last figure in view
+            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; 
             vizSection.scrollTop = Math.max(0, newScrollTop);
         
         } else if (progress < 0.01) {
-             // Ensure we're scrolled to the top at the beginning
              vizSection.scrollTop = 0;
         }
     }
