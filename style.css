@@ -46,12 +46,10 @@ h1 {
     z-index: 3;
 }
 
-/* NEW: Style for prominent numbers */
 .stat-number {
     font-weight: 700;
     color: var(--vibrant-red);
-    font-size: 1.2em; /* 20% larger than surrounding text */
-    /* Add a subtle shadow to make it pop */
+    font-size: 1.2em; 
     text-shadow: 0 0 2px rgba(217, 4, 41, 0.2);
 }
 
@@ -88,10 +86,16 @@ h1 {
 
 /* --- SCROLL LAYOUT --- */
 
-/* 1. The Wrapper (The "Scroll Track") */
+/* 1. The Wrapper (The "Scroll Track")
+   
+   UPDATED:
+   Reduced from 150,000px to 25,000px. This
+   is still very long, but not "unfathomable",
+   and is appropriate for 500 figures.
+*/
 #visualization-wrapper {
     position: relative;
-    height: 150000px; /* 150,000px */
+    height: 25000px; /* 25,000px */
     z-index: 1;
 }
 
@@ -137,13 +141,7 @@ h1 {
 /* --- END SCROLL LAYOUT --- */
 
 
-/* Container for the 5,000 figures
-   
-   UPDATED:
-   - 'align-content: start;' is ADDED BACK.
-   This is the fix for the "70% empty" screen.
-   It forces the grid to fill from the top.
-*/
+/* Container for the 5,000 figures */
 #visualization-container {
     width: 90%;
     max-width: 1000px; 
@@ -153,7 +151,7 @@ h1 {
     gap: 5px; 
     padding: 20px;
     justify-content: center; 
-    align-content: start; /* THIS IS THE FIX */
+    align-content: start; /* Fills from the top */
 }
 
 /* Individual Figure Styling */
