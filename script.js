@@ -1,91 +1,141 @@
 document.addEventListener('DOMContentLoaded', () => {
     const numFigures = 5000;
     const container = document.getElementById('visualization-container');
+    const aliContainer = document.getElementById('ali-container');
     const ali = document.getElementById('ali');
     const figures = [];
-    let lastShownIndex = -1; // Performance: Track the last figure shown
+    let lastRevealedIndex = -1; // Track the last figure revealed for the scroll effect
+
+    const dreamPopup = document.getElementById('dream-popup');
+    const dreamText = document.getElementById('dream-text');
+    const closeDreamBtn = document.getElementById('close-dream');
+
+    const dreams = [
+        "To become a pilot, soaring above the very fields where I now toil.",
+        "To build bridges and roads, connecting villages so no one feels isolated.",
+        "To teach others, sharing knowledge that was once denied to me.",
+        "To heal the sick, becoming a doctor and serving my community.",
+        "To be an engineer, designing new ways to bring water to dry lands.",
+        "To write stories, so the voices of children like me are heard.",
+        "To be an artist, painting the vibrant colors of my homeland.",
+        "To cultivate the best crops, ensuring food for every family.",
+        "To run a small shop, providing for my family and neighbors.",
+        "To invent something that makes life easier for everyone.",
+        "To sing and share music that brings joy to people's hearts.",
+        "To explore the world, beyond the boundaries of my village.",
+        "To play sports, representing my country and inspiring others.",
+        "To become a soldier, protecting my land and its people.",
+        "To care for animals, ensuring they are healthy and well-treated.",
+        "To cook delicious food that brings people together.",
+        "To lead, becoming a voice for the voiceless in my community.",
+        "To build beautiful homes, where families can live safely.",
+        "To stitch clothes, creating beauty and livelihood.",
+        "To use computers, connecting to a world of information."
+    ];
 
     // --- 1. Create all figures (but keep them hidden) ---
     function createFigures() {
-        const fragment = document.createDocumentFragment(); // Use fragment for performance
-        
+        const fragment = document.createDocumentFragment();
+
         for (let i = 0; i < numFigures; i++) {
             const span = document.createElement('span');
             span.className = 'figure';
             span.innerHTML = '🧍';
+            span.dataset.index = i; // Store index for potential targeting
             
-            // Set random position within the container
-            span.style.position = 'absolute';
-            span.style.left = `${Math.random() * 100}%`;
-            span.style.top = `${Math.random() * 100}%`;
-            
-            span.style.opacity = '0'; // Start hidden
-            
+            // Add click listener for dreams
+            span.addEventListener('click', () => {
+                showDream(dreams[Math.floor(Math.random() * dreams.length)]);
+            });
+
             fragment.appendChild(span);
             figures.push(span);
         }
-        
-        container.appendChild(fragment); // Append all at once to the DOM
+        container.appendChild(fragment);
     }
 
     // --- 2. Update visualization based on scroll ---
     function updateVisualization() {
         const scrollY = window.scrollY;
-        
-        // Get section heights
-        const introHeight = document.getElementById('intro-section').offsetHeight;
-        const outroHeight = document.getElementById('outro-section').offsetHeight;
-        
-        // --- Ali Fade Logic ---
-        // Fade Ali out as the user scrolls past the intro's midpoint
-        const aliFadeStart = introHeight / 2;
-        const aliFadeEnd = introHeight;
-        const aliProgress = Math.min(1, Math.max(0, (scrollY - aliFadeStart) / (aliFadeEnd - aliFadeStart)));
-        ali.style.opacity = (1 - aliProgress).toString();
 
+        // --- Ali Fade Logic (now using aliContainer) ---
+        // Fade Ali and his text out as the user scrolls past the intro section
+        const introSection = document.getElementById('intro-section');
+        const introBottom = introSection.offsetTop + introSection.offsetHeight;
         
+        // Ali should start fading when the top of aliContainer reaches the middle of the viewport
+        const aliFadeStart = aliContainer.offsetTop - window.innerHeight / 2;
+        // And finish fading when the bottom of introSection leaves the viewport
+        const aliFadeEnd = introBottom - window.innerHeight / 4; 
+
+        const aliProgress = Math.min(1, Math.max(0, (scrollY - aliFadeStart) / (aliFadeEnd - aliFadeStart)));
+        aliContainer.style.opacity = (1 - aliProgress).toString();
+        // Adjust for visibility, Ali should still be in the document flow
+        aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
+
+
         // --- Figure Reveal Logic ---
-        
-        // The animation "active zone" starts when the viz is sticky (at introHeight)
-        // and lasts for the *entire scrollable height of the outro section*.
-        const scrollStart = introHeight;
-        const animationDistance = outroHeight; // Animation progress is tied to outro's height
-        
+        const vizSection = document.getElementById('visualization-section');
+        const outroSection = document.getElementById('outro-section');
+
+        // The animation "active zone" is when the visualization section is sticky
+        // It starts when the top of the visualization section hits the top of the viewport
+        // and ends when the *top* of the outro section reaches the top of the viewport.
+        const scrollStart = vizSection.offsetTop;
+        const scrollEnd = outroSection.offsetTop; // When outro starts covering the sticky viz
+
+        const totalScrollableDistance = scrollEnd - scrollStart;
+
         // Calculate current scroll distance within the "active zone"
-        const scrollDistance = scrollY - scrollStart;
-        
+        let scrollDistanceInViz = scrollY - scrollStart;
+
+        // Clamp scroll distance
+        scrollDistanceInViz = Math.min(totalScrollableDistance, Math.max(0, scrollDistanceInViz));
+
         // Calculate progress as a percentage (0.0 to 1.0)
-        let progress = scrollDistance / animationDistance;
-        
-        // Clamp progress between 0 and 1
+        let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
 
-        const figuresToShow = Math.floor(progress * numFigures);
-
-        // --- Performance-Optimized Update ---
-        // Only change opacity for the figures that need updating
+        // Determine how many figures should be revealed based on progress
+        // Using Math.ceil to ensure at least 1 figure appears for any progress > 0
+        const figuresToReveal = Math.ceil(progress * numFigures);
         
-        if (figuresToShow > lastShownIndex) {
-            // User is scrolling down: Show new figures
-            for (let i = lastShownIndex + 1; i <= figuresToShow; i++) {
-                if (figures[i]) {
-                    figures[i].style.opacity = '1';
-                }
+        // --- "Fallen" style reveal: only add 'revealed' class to new figures ---
+        for (let i = 0; i < figuresToReveal; i++) {
+            if (figures[i] && !figures[i].classList.contains('revealed')) {
+                // Add a slight delay for the "drop-in" effect
+                setTimeout(() => {
+                    figures[i].classList.add('revealed');
+                }, i * 2); // Small delay, e.g., 2ms per figure for a staggered effect
             }
-        } else if (figuresToShow < lastShownIndex) {
-            // User is scrolling up: Hide figures
-            for (let i = figuresToShow + 1; i <= lastShownIndex; i++) {
-                if (figures[i]) {
-                    figures[i].style.opacity = '0';
-                }
+        }
+
+        // --- Hide figures if scrolling up ---
+        for (let i = figuresToReveal; i < numFigures; i++) {
+            if (figures[i] && figures[i].classList.contains('revealed')) {
+                figures[i].classList.remove('revealed');
             }
         }
         
-        lastShownIndex = figuresToShow; // Update the tracker
+        lastRevealedIndex = figuresToReveal; // Update the tracker
     }
 
-    // --- 3. Attach Event Listeners ---
-    createFigures(); // Create figures on load
-    window.addEventListener('scroll', updateVisualization, { passive: true }); // Listen for scroll
+    // --- Dream Pop-up Functions ---
+    function showDream(dream) {
+        dreamText.textContent = dream;
+        dreamPopup.classList.remove('hidden');
+    }
+
+    closeDreamBtn.addEventListener('click', () => {
+        dreamPopup.classList.add('hidden');
+    });
+
+    // --- Initial Setup ---
+    createFigures();
+    window.addEventListener('scroll', updateVisualization, { passive: true });
+    window.addEventListener('resize', updateVisualization); // Re-run on resize to adjust layout
     updateVisualization(); // Run once on load to set initial state
+
+    // Ensure initial scroll position for the intro is pleasant
+    window.scrollTo(0, 0);
 });
