@@ -1,8 +1,94 @@
-/* ... all other styles are correct ... */
+/* General Setup */
+:root {
+    --primary-text: #333;
+    --secondary-text: #666;
+    --accent-color: #ffd700; /* Gold */
+    --background-light: #f5f5f5;
+    --background-dark: #111; /* Darker background */
+    --figure-size: 2rem; 
+    --vibrant-red: #d90429;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-light);
+    color: var(--primary-text);
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: var(--primary-text);
+    margin: 0;
+}
+
+/* Text Sections (Intro & Outro) */
+#intro-section {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 80px 20px 100px 20px;
+    background-color: white;
+    font-size: 1.15rem;
+    line-height: 1.8;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: relative; 
+    z-index: 3;
+}
+
+.stat-number {
+    font-weight: 700;
+    color: var(--vibrant-red);
+    font-size: 1.2em; 
+    text-shadow: 0 0 2px rgba(217, 4, 41, 0.2);
+}
+
+.lost-futures {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--vibrant-red);
+    margin-top: 40px;
+}
+
+/* The 'Ali' Figure */
+#ali-container {
+    margin: 50px auto;
+    text-align: center;
+    position: relative;
+}
+
+#ali {
+    font-size: 12rem; 
+    line-height: 1;
+    display: inline-block;
+    opacity: 1;
+    transition: opacity 0.8s ease-out;
+    margin-bottom: 20px;
+}
+
+.ali-text {
+    font-style: italic;
+    color: var(--secondary-text);
+    max-width: 500px;
+    margin: 0 auto;
+    font-size: 1.1rem;
+}
 
 /* --- SCROLL LAYOUT --- */
 
-/* 2. The Visualization (The Black Box) */
+/* 2. The Visualization (The Black Box)
+   THIS BLOCK IS NOW FIXED
+*/
 #visualization-section {
     position: sticky;
     top: 0;
@@ -12,22 +98,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow-y: auto; /* <-- RE-ADD this */
+    overflow-y: auto; 
     z-index: 1; 
     
-    &::-webkit-scrollbar {
-        display: none;
-    }
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    /* Scrollbar hiding (valid CSS) */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Scrollbar hiding (valid CSS) */
+#visualization-section::-webkit-scrollbar {
+    display: none;
 }
 
 /* 3. The Outro (Scroll Track)
-   REVERTED to 500vh
+   This is the correct 500vh track
 */
 #outro-section {
     position: relative; 
-    padding-top: 500vh; /* <-- THIS IS THE FIX */
+    padding-top: 500vh; 
 }
 
 /* The white overlay */
@@ -44,4 +133,33 @@
     box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
 }
 
-/* ... all other styles are correct ... */
+.source-info {
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    margin-top: 40px;
+}
+
+/* --- END SCROLL LAYOUT --- */
+
+
+/* Container for the 500 figures */
+#visualization-container {
+    width: 90%;
+    max-width: 1000px; 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(var(--figure-size), 1fr)); 
+    grid-auto-rows: var(--figure-size); 
+    gap: 5px; 
+    padding: 20px;
+    justify-content: center; 
+    align-content: start; /* Fills from the top */
+}
+
+/* Individual Figure Styling */
+.figure {
+    font-size: var(--figure-size);
+    line-height: 1;
+    color: var(--accent-color); 
+    cursor: pointer; 
+    opacity: 0; 
+    transform: translateY
