@@ -84,14 +84,9 @@ h1 {
     font-size: 1.1rem;
 }
 
-/* --- NEW, SIMPLER SCROLL LAYOUT --- */
+/* --- SCROLL LAYOUT --- */
 
-/* 1. The Wrapper is GONE */
-/* #visualization-wrapper { ... } */
-
-/* 2. The Visualization (The Black Box)
-   Now sticky to the page, not a wrapper.
-*/
+/* 2. The Visualization (The Black Box) */
 #visualization-section {
     position: sticky;
     top: 0;
@@ -102,7 +97,7 @@ h1 {
     justify-content: center;
     align-items: center;
     overflow-y: auto;
-    z-index: 1; /* Sits behind the outro */
+    z-index: 1; /* Sits BEHIND the outro content */
     
     &::-webkit-scrollbar {
         display: none;
@@ -111,23 +106,20 @@ h1 {
     scrollbar-width: none;
 }
 
-/* 3. The Outro
-   This section now creates the scroll track
-   using a large padding-top.
+/* 3. The Outro (THE FIX IS HERE)
+   This is the *transparent scroll track*.
+   The background-color and z-index are REMOVED.
 */
 #outro-section {
     position: relative; 
-    z-index: 2; /* Sits on top of the sticky viz */
-    background-color: white; /* Has a background */
-    /* This padding creates the "scroll track".
-      A 500vh track is perfect for 500 figures.
-      It's long enough to feel gradual, short enough
-      to be fast on mobile.
-    */
+    /* z-index: 2; <-- REMOVED */
+    /* background-color: white; <-- REMOVED */
     padding-top: 500vh;
 }
 
-/* This div holds the actual text */
+/* This div holds the actual text.
+   THIS is now the white overlay.
+*/
 .outro-content {
     max-width: 700px;
     margin: 0 auto;
@@ -135,7 +127,13 @@ h1 {
     font-size: 1.15rem;
     line-height: 1.8;
     text-align: center;
-    box-shadow: 0 -5px 15px rgba(0,0,0,0.05); /* Shadow at the top */
+    
+    /* --- ADDED/MOVED HERE --- */
+    position: relative; /* Needed for z-index */
+    z-index: 2; /* Sits ON TOP of the sticky viz */
+    background-color: white; /* This is the white overlay */
+    
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
 }
 
 .source-info {
@@ -144,7 +142,7 @@ h1 {
     margin-top: 40px;
 }
 
-/* --- END NEW SCROLL LAYOUT --- */
+/* --- END SCROLL LAYOUT --- */
 
 
 /* Container for the 500 figures */
