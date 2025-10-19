@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('visualization-container');
     const aliContainer = document.getElementById('ali-container');
     const vizSection = document.getElementById('visualization-section');
-    const outroSection = document.getElementById('outro-section'); // <-- ADDED
+    const outroSection = document.getElementById('outro-section');
     const figures = [];
     let lastRevealedIndex = -1; 
 
@@ -61,8 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // The animation starts when the viz section sticks
         const scrollStart = vizSection.offsetTop;
         
-        // The total scroll distance is the height of the outro section's padding
-        const totalScrollableDistance = outroSection.offsetHeight - window.innerHeight;
+        // --- THIS IS THE FIX ---
+        // The total scroll distance is the 500vh padding from the CSS,
+        // converted to pixels.
+        const vhInPixels = window.innerHeight / 100;
+        const totalScrollableDistance = 500 * vhInPixels; 
         
         // Current distance scrolled *within the animation*
         let scrollDistanceInViz = scrollY - scrollStart;
@@ -96,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  lastFigure.classList.add('revealed');
             }
             
-            // Scroll the grid to keep the last figure in view
             const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; 
             vizSection.scrollTop = Math.max(0, newScrollTop);
         
