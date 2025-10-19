@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const numFigures = 5000;
     const container = document.getElementById('visualization-container');
     const aliContainer = document.getElementById('ali-container');
+    const vizSection = document.getElementById('visualization-section'); // <-- ADDED
     const figures = [];
     let lastRevealedIndex = -1; // Track the last figure revealed
 
@@ -67,39 +68,27 @@ document.addEventListener('DOMContentLoaded', () => {
              aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
         }
 
-        // --- Figure Reveal Logic (New and Optimized) ---
+        // --- Figure Reveal Logic ---
         const vizWrapper = document.getElementById('visualization-wrapper');
-        if (!vizWrapper) return; // Exit if wrapper not found
+        if (!vizWrapper || !vizSection) return; // Exit if elements not found
 
-        // The animation "active zone" is the height of the wrapper
         const scrollStart = vizWrapper.offsetTop;
-        // The total scrollable distance is the wrapper's height minus one viewport height
-        // (because the animation is *done* when the wrapper's bottom hits the viewport's bottom)
         const totalScrollableDistance = vizWrapper.offsetHeight - window.innerHeight;
         
-        // Calculate current scroll distance within the "active zone"
         let scrollDistanceInViz = scrollY - scrollStart;
-
-        // Calculate progress as a percentage (0.0 to 1.0)
         let progress = scrollDistanceInViz / totalScrollableDistance;
-        
-        // Clamp progress between 0 and 1
         progress = Math.min(1, Math.max(0, progress));
 
         const figuresToReveal = Math.floor(progress * numFigures);
         
         // --- HIGH-PERFORMANCE REVEAL LOOP ---
-        // NO setTimeout. This just adds/removes classes.
-        
         if (figuresToReveal > lastRevealedIndex) {
-            // User is scrolling down: Show new figures
             for (let i = lastRevealedIndex + 1; i <= figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
         } else if (figuresToReveal < lastRevealedIndex) {
-            // User is scrolling up: Hide figures
             for (let i = figuresToReveal + 1; i <= lastRevealedIndex; i++) {
                 if (figures[i]) {
                     figures[i].classList.remove('revealed');
@@ -108,6 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         lastRevealedIndex = figuresToReveal; // Update the tracker
+
+        // --- ADDED: SYNC INTERNAL SCROLL ---
+        // This scrolls the black box's content in sync with the page scroll
+        const totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
+        vizSection.scrollTop = totalGridScroll * progress;
     }
 
     // --- Dream Pop-up Functions ---
@@ -122,7 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Setup ---
     createFigures();
+    // Run updateVisualization once *after* figures are created
+    // to get the correct initial scrollHeight
+    updateVisualization(); 
+    
     window.addEventListener('scroll', updateVisualization, { passive: true });
     window.addEventListener('resize', updateVisualization); 
-    updateVisualization(); // Run once on load
 });
