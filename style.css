@@ -84,22 +84,14 @@ h1 {
     font-size: 1.1rem;
 }
 
-/* --- SCROLL LAYOUT --- */
+/* --- NEW, SIMPLER SCROLL LAYOUT --- */
 
-/* 1. The Wrapper (The "Scroll Track")
-   
-   UPDATED:
-   Reduced from 150,000px to 25,000px. This
-   is still very long, but not "unfathomable",
-   and is appropriate for 500 figures.
+/* 1. The Wrapper is GONE */
+/* #visualization-wrapper { ... } */
+
+/* 2. The Visualization (The Black Box)
+   Now sticky to the page, not a wrapper.
 */
-#visualization-wrapper {
-    position: relative;
-    height: 25000px; /* 25,000px */
-    z-index: 1;
-}
-
-/* 2. The Visualization (The Black Box) */
 #visualization-section {
     position: sticky;
     top: 0;
@@ -110,6 +102,7 @@ h1 {
     justify-content: center;
     align-items: center;
     overflow-y: auto;
+    z-index: 1; /* Sits behind the outro */
     
     &::-webkit-scrollbar {
         display: none;
@@ -118,18 +111,31 @@ h1 {
     scrollbar-width: none;
 }
 
-/* 3. The Outro */
+/* 3. The Outro
+   This section now creates the scroll track
+   using a large padding-top.
+*/
 #outro-section {
+    position: relative; 
+    z-index: 2; /* Sits on top of the sticky viz */
+    background-color: white; /* Has a background */
+    /* This padding creates the "scroll track".
+      A 500vh track is perfect for 500 figures.
+      It's long enough to feel gradual, short enough
+      to be fast on mobile.
+    */
+    padding-top: 500vh;
+}
+
+/* This div holds the actual text */
+.outro-content {
     max-width: 700px;
     margin: 0 auto;
     padding: 80px 20px;
-    background-color: white;
     font-size: 1.15rem;
     line-height: 1.8;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    position: relative; 
-    z-index: 2; 
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.05); /* Shadow at the top */
 }
 
 .source-info {
@@ -138,10 +144,10 @@ h1 {
     margin-top: 40px;
 }
 
-/* --- END SCROLL LAYOUT --- */
+/* --- END NEW SCROLL LAYOUT --- */
 
 
-/* Container for the 5,000 figures */
+/* Container for the 500 figures */
 #visualization-container {
     width: 90%;
     max-width: 1000px; 
