@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const numFigures = 5000;
+    // UPDATED: Reduced from 5000 to 500
+    const numFigures = 500;
+    
     const container = document.getElementById('visualization-container');
     const aliContainer = document.getElementById('ali-container');
     const vizSection = document.getElementById('visualization-section');
@@ -10,28 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const dreamText = document.getElementById('dream-text');
     const closeDreamBtn = document.getElementById('close-dream');
 
-    // UPDATED: Changed to noun phrases for better formatting in the popup
     const dreams = [
-        "a pilot",
-        "a bridge builder",
-        "a teacher",
-        "a doctor",
-        "an engineer",
-        "a writer",
-        "an artist",
-        "a farmer who feeds everyone",
-        "a shop owner",
-        "an inventor",
-        "a musician",
-        "an explorer",
-        "a cricket star",
-        "a soldier",
-        "a veterinarian",
-        "a chef",
-        "a leader for my community",
-        "a home builder",
-        "a tailor",
-        "a computer expert"
+        "a pilot", "a bridge builder", "a teacher", "a doctor", "an engineer",
+        "a writer", "an artist", "a farmer who feeds everyone", "a shop owner",
+        "an inventor", "a musician", "an explorer", "a cricket star", "a soldier",
+        "a veterinarian", "a chef", "a leader for my community", "a home builder",
+        "a tailor", "a computer expert"
     ];
 
     // --- 1. Create all figures (but keep them hidden) ---
@@ -84,8 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- HIGH-PERFORMANCE REVEAL LOOP ---
         if (figuresToReveal > lastRevealedIndex) {
-            for (let i = lastRevealedIndex + 1; i <= figuresToReveal; i++) {
-                if (figures[i]) {
+            for (let i = lastRevealedIndex + 1; i < figuresToReveal; i++) { // Use '<' to stop before the last one
+                if (figures[i] && !figures[i].classList.contains('revealed')) {
                     figures[i].classList.add('revealed');
                 }
             }
@@ -99,17 +85,32 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal;
 
-        // --- REVERTED: SYNC INTERNAL SCROLL ---
-        // This is the correct logic. It scrolls the grid up
-        // as you scroll down, keeping the "action line"
-        // (the newest figures) in view.
+        // --- UPDATED: SYNC INTERNAL SCROLL (THE "EMPTY SCREEN" FIX) ---
         
-        const totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
-        vizSection.scrollTop = totalGridScroll * progress;
+        // Find the last figure that should be visible
+        const lastFigure = figures[lastRevealedIndex];
+        
+        if (lastFigure) {
+            // Add the 'revealed' class to this specific figure
+            // (we skipped it in the loop)
+            if (!lastFigure.classList.contains('revealed')) {
+                 lastFigure.classList.add('revealed');
+            }
+
+            // Calculate where the top of the grid needs to be
+            // to keep this last figure just in view at the bottom
+            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; // +20 for padding
+            
+            // Set the scroll position, ensuring it's not negative
+            vizSection.scrollTop = Math.max(0, newScrollTop);
+        
+        } else if (progress < 0.01) {
+             // Ensure we're scrolled to the top at the beginning
+             vizSection.scrollTop = 0;
+        }
     }
 
     // --- Dream Pop-up Functions ---
-    // UPDATED: Changed text to be more sensitive
     function showDream(dream) {
         dreamText.textContent = `"I dream of becoming ${dream}..."`;
         dreamPopup.classList.remove('hidden');
