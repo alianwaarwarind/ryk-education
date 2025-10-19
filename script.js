@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const numFigures = 5000;
     const container = document.getElementById('visualization-container');
     const aliContainer = document.getElementById('ali-container');
-    const vizSection = document.getElementById('visualization-section'); // <-- ADDED
+    const vizSection = document.getElementById('visualization-section');
     const figures = [];
     let lastRevealedIndex = -1; // Track the last figure revealed
 
@@ -63,14 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const aliFadeEnd = introBottom - window.innerHeight / 4; 
         const aliProgress = Math.min(1, Math.max(0, (scrollY - aliFadeStart) / (aliFadeEnd - aliFadeStart)));
         
-        if (aliContainer) { // Check if Ali container exists
+        if (aliContainer) { 
              aliContainer.style.opacity = (1 - aliProgress).toString();
              aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
         }
 
         // --- Figure Reveal Logic ---
         const vizWrapper = document.getElementById('visualization-wrapper');
-        if (!vizWrapper || !vizSection) return; // Exit if elements not found
+        if (!vizWrapper || !vizSection) return; 
 
         const scrollStart = vizWrapper.offsetTop;
         const totalScrollableDistance = vizWrapper.offsetHeight - window.innerHeight;
@@ -96,12 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        lastRevealedIndex = figuresToReveal; // Update the tracker
+        lastRevealedIndex = figuresToReveal;
 
-        // --- ADDED: SYNC INTERNAL SCROLL ---
-        // This scrolls the black box's content in sync with the page scroll
-        const totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
-        vizSection.scrollTop = totalGridScroll * progress;
+        // --- UPDATED: SYNC INTERNAL SCROLL ---
+        // This logic now scrolls the container to keep the
+        // "action line" (new figures) at the BOTTOM of the screen.
+        
+        // Calculate how far to scroll: (total grid height * progress) - (viewport height)
+        const newScrollTop = (vizSection.scrollHeight * progress) - vizSection.clientHeight;
+        
+        // Set the scroll position, ensuring it's not negative
+        vizSection.scrollTop = Math.max(0, newScrollTop);
     }
 
     // --- Dream Pop-up Functions ---
@@ -116,9 +121,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Setup ---
     createFigures();
-    // Run updateVisualization once *after* figures are created
-    // to get the correct initial scrollHeight
-    updateVisualization(); 
+    
+    // Use requestAnimationFrame to ensure layout is calculated *before*
+    // the first run of updateVisualization
+    requestAnimationFrame(() => {
+        updateVisualization(); 
+    });
     
     window.addEventListener('scroll', updateVisualization, { passive: true });
     window.addEventListener('resize', updateVisualization); 
