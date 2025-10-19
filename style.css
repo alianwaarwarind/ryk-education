@@ -87,7 +87,7 @@ h1 {
 /* --- SCROLL LAYOUT --- */
 
 /* 2. The Visualization (The Black Box)
-   THIS BLOCK IS NOW FIXED
+   UPDATED: overflow is now 'hidden'
 */
 #visualization-section {
     position: sticky;
@@ -98,25 +98,14 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow-y: auto; 
+    overflow: hidden; /* IMPORTANT: Clips the moving container */
     z-index: 1; 
-    
-    /* Scrollbar hiding (valid CSS) */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
 }
 
-/* Scrollbar hiding (valid CSS) */
-#visualization-section::-webkit-scrollbar {
-    display: none;
-}
-
-/* 3. The Outro (Scroll Track)
-   This is the correct 500vh track
-*/
+/* 3. The Outro (Scroll Track) */
 #outro-section {
     position: relative; 
-    padding-top: 500vh; 
+    padding-top: 500vh;
 }
 
 /* The white overlay */
@@ -142,7 +131,9 @@ h1 {
 /* --- END SCROLL LAYOUT --- */
 
 
-/* Container for the 500 figures */
+/* Container for the 500 figures
+   UPDATED: Added will-change
+*/
 #visualization-container {
     width: 90%;
     max-width: 1000px; 
@@ -152,14 +143,68 @@ h1 {
     gap: 5px; 
     padding: 20px;
     justify-content: center; 
-    align-content: start; /* Fills from the top */
+    align-content: start; 
+    /* Hint to the browser to use the GPU */
+    will-change: transform;
 }
 
-/* Individual Figure Styling */
+/* Individual Figure Styling
+   UPDATED: Simplified for performance
+*/
 .figure {
     font-size: var(--figure-size);
     line-height: 1;
     color: var(--accent-color); 
     cursor: pointer; 
-    opacity: 0; 
-    transform: translateY
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.3s ease; /* Simple fade in */
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+}
+
+.figure.revealed {
+    opacity: 1;
+    /* Transform animation is removed */
+}
+
+/* Dream Pop-up ... (no changes) */
+#dream-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 100; 
+    max-width: 400px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+#dream-popup.hidden {
+    display: none;
+}
+
+#dream-text {
+    margin-bottom: 20px;
+    color: var(--primary-text);
+}
+
+#close-dream {
+    background-color: var(--primary-text);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#close-dream:hover {
+    background-color: #555;
+}
