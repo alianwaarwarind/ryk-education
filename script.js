@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const vizSection = document.getElementById('visualization-section');
     const outroSection = document.getElementById('outro-section');
     const figures = [];
-    let lastRevealedIndex = -1; // Use -1 to make the 0-index logic work
+    
+    // UPDATED: Initialize to 0
+    let lastRevealedIndex = 0; 
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
@@ -66,41 +68,38 @@ document.addEventListener('DOMContentLoaded', () => {
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
 
-        // Use 'figuresToReveal' as the *count* of figures
+        // This is a *count* of figures to show (e.g., 111)
         const figuresToReveal = Math.floor(progress * numFigures);
         
         // --- CORRECTED REVEAL LOOP ---
         if (figuresToReveal > lastRevealedIndex) {
             // User is scrolling down
-            // Loop from the last revealed index up to the new one
-            for (let i = lastRevealedIndex + 1; i < figuresToReveal; i++) {
+            // Loop from the last index (e.g., 0) up to the new count (e.g., 111)
+            for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
         } else if (figuresToReveal < lastRevealedIndex) {
             // User is scrolling up
-            // Loop from the new index up to the old one
-            for (let i = figuresToReveal; i <= lastRevealedIndex; i++) {
+            // Loop from the new count (e.g., 111) up to the old index (e.g., 120)
+            for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
                 if (figures[i]) {
                     figures[i].classList.remove('revealed');
                 }
             }
         }
         
-        lastRevealedIndex = figuresToReveal; // Update the tracker
+        // Update the tracker to the new count
+        lastRevealedIndex = figuresToReveal; 
 
         // --- CORRECTED SYNC INTERNAL SCROLL ---
         
-        // Get the *actual last figure* based on the count (using index figuresToReveal - 1)
+        // Get the *actual last figure* based on the count
+        // (index is count - 1)
         const lastFigure = figures[figuresToReveal - 1];
         
         if (lastFigure) {
-            // Manually reveal this last figure (which the loop skips)
-            if (!lastFigure.classList.contains('revealed')) {
-                 lastFigure.classList.add('revealed');
-            }
-            
             // Scroll the grid to keep this exact figure in view
             const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; // +20 for padding
             vizSection.scrollTop = Math.max(0, newScrollTop);
