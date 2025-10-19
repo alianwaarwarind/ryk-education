@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('visualization-container');
     const aliContainer = document.getElementById('ali-container');
     const vizSection = document.getElementById('visualization-section');
-    const outroSection = document.getElementById('outro-section');
+    const introSection = document.getElementById('intro-section');
     const figures = [];
     let lastRevealedIndex = 0; 
 
@@ -36,28 +36,40 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(fragment);
     }
 
-    // --- 2. Define Layout Constants (THE FIX) ---
-    // We define these variables *outside* the scroll function
-    // so they are not recalculated 60 times a second.
+    // --- 2. Define Layout Constants ---
+    // These are calculated once to avoid layout thrashing
     let scrollStart = 0;
     let totalScrollableDistance = 0;
+    let totalGridScroll = 0;
 
     function calculateLayout() {
-        // When the animation STARTS (viz sticks)
         scrollStart = vizSection.offsetTop;
-        
-        // The total distance is the 500vh padding, converted to pixels
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
+        
+        // Calculate the total scrollable height of the *grid* inside
+        totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
     }
 
-    // --- 3. Update visualization based on scroll ---
-    // This function is now very fast and only does math
-    function updateVisualization() {
-        const scrollY = window.scrollY;
+    // --- 3. High-Performance Scroll Handling (THE FIX) ---
+    let lastScrollY = window.scrollY;
+    let ticking = false;
 
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                updateVisualization(lastScrollY);
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+
+    // --- 4. Update visualization (now runs in rAF) ---
+    function updateVisualization(scrollY) {
+        
         // --- Ali Fade Logic ---
-        const introSection = document.getElementById('intro-section');
         if (aliContainer && introSection) {
             const introBottom = introSection.offsetTop + introSection.offsetHeight;
             const aliFadeStart = aliContainer.offsetTop - window.innerHeight / 2;
@@ -69,17 +81,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- Figure Reveal Logic ---
-        if (!vizSection || !outroSection || totalScrollableDistance <= 0) return; 
+        if (totalScrollableDistance <= 0) return; 
 
-        // How far are we into the animation?
         let scrollDistanceInViz = scrollY - scrollStart;
         let progress = scrollDistanceInViz / totalScrollableDistance;
         progress = Math.min(1, Math.max(0, progress));
 
-        // How many figures should be visible?
         const figuresToReveal = Math.floor(progress * numFigures);
         
-        // --- CORRECTED REVEAL LOOP ---
+        // --- Reveal Loop ---
         if (figuresToReveal > lastRevealedIndex) {
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
@@ -96,15 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- CORRECTED SYNC INTERNAL SCROLL ---
-        const lastFigure = figures[figuresToReveal - 1];
-        
-        if (lastFigure) {
-            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20;
-            vizSection.scrollTop = Math.max(0, newScrollTop);
-        } else if (progress < 0.01) {
-             vizSection.scrollTop = 0;
-        }
+        // --- SIMPLIFIED SYNC INTERNAL SCROLL ---
+        // This is much faster and less "jumpy".
+        // It scrolls the grid proportionally to the page scroll.
+        vizSection.scrollTop = totalGridScroll * progress;
     }
 
     // --- Dream Pop-up Functions ---
@@ -120,16 +125,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Setup ---
     createFigures();
     
-    // Calculate layout *after* figures are created
+    // Calculate layout *after* figures are created and DOM is ready
     calculateLayout(); 
     
     // Run update once on load
-    requestAnimationFrame(updateVisualization); 
+    requestAnimationFrame(() => updateVisualization(window.scrollY)); 
     
     // Add listeners
-    window.addEventListener('scroll', updateVisualization, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => {
         calculateLayout(); // Recalculate on resize
-        updateVisualization();
+        updateVisualization(window.scrollY);
     }); 
 });
