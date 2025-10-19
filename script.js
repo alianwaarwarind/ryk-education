@@ -40,15 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let scrollStart = 0;
     let totalScrollableDistance = 0;
     
+    // Pre-calculated positions
     let figureOffsetTops = []; 
     let figureHeight = 0; 
     let vizClientHeight = 0; 
 
     function calculateLayout() {
         if (!vizSection) return;
-        // This is now guaranteed to be the *correct* final value
         scrollStart = vizSection.offsetTop;
-        
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
         
@@ -140,17 +139,19 @@ document.addEventListener('DOMContentLoaded', () => {
         dreamPopup.classList.add('hidden');
     });
 
-    // --- Initial Setup (THE FIX IS HERE) ---
+    // --- Initial Setup ---
     
     // 1. Create figures as soon as DOM is ready
     createFigures();
     
-    // 2. Wait for *everything* (images, etc.) to load
+    // 2. Wait for *everything* (images, fonts) to load
     window.addEventListener('load', () => {
         
-        // 3. --- NEW: Wait for ALL fonts to be 100% ready ---
-        document.fonts.ready.then(() => {
-            // 4. NOW, calculate the layout (it will be 100% accurate)
+        // 3. --- THIS IS THE FIX ---
+        // Give the browser 500ms to finish all layout
+        // changes from fonts/emojis loading.
+        setTimeout(() => {
+            // 4. NOW, calculate the layout
             calculateLayout(); 
             
             // 5. Run update once to set the initial state
@@ -162,6 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculateLayout(); // Recalculate on resize
                 updateVisualization(window.scrollY);
             });
-        });
+        }, 500); // 500ms grace period
     });
 });
