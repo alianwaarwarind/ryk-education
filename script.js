@@ -36,23 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(fragment);
     }
 
-    // --- 2. Define Layout Constants (THE FIX) ---
-    // We define these variables *outside* the scroll function
-    // so they are not recalculated 60 times a second.
+    // --- 2. Define Layout Constants ---
     let scrollStart = 0;
     let totalScrollableDistance = 0;
-    let totalGridScroll = 0;
+    // 'totalGridScroll' is no longer needed
 
     function calculateLayout() {
+        if (!vizSection) return;
         // When the animation STARTS (viz sticks)
         scrollStart = vizSection.offsetTop;
         
         // The total distance is the 500vh padding, converted to pixels
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
-
-        // Calculate the total scrollable height of the *grid* inside
-        totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
     }
 
     // --- 3. High-Performance Scroll Handling ---
@@ -71,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. Update visualization (now runs in rAF) ---
+    // This function is now MUCH simpler.
     function updateVisualization(scrollY) {
         
         // --- Ali Fade Logic ---
@@ -93,25 +90,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const figuresToReveal = Math.floor(progress * numFigures);
         
-        // --- Reveal Loop ---
+        // --- SIMPLIFIED REVEAL LOOP ---
+        // We only care about revealing *new* figures when scrolling down.
         if (figuresToReveal > lastRevealedIndex) {
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
-        } else if (figuresToReveal < lastRevealedIndex) {
-            for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
-                if (figures[i]) {
-                    figures[i].classList.remove('revealed');
-                }
-            }
         }
+        // The 'else if' (scroll up) block is GONE.
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- SYNC INTERNAL SCROLL ---
-        vizSection.scrollTop = totalGridScroll * progress;
+        // --- ALL 'scrollTop' LOGIC IS GONE ---
+        // This removes the "empty screen" bug and the "scroll back" bug.
+        // The grid will now simply fill from the top.
     }
 
     // --- Dream Pop-up Functions ---
