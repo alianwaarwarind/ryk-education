@@ -39,12 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. Define Layout Constants ---
     let scrollStart = 0;
     let totalScrollableDistance = 0;
+    let totalGridScroll = 0; // The max scrollTop of the grid
 
     function calculateLayout() {
         if (!vizSection) return;
         scrollStart = vizSection.offsetTop;
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
+        
+        // This is the total height the grid can scroll
+        totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
     }
 
     // --- 3. High-Performance Scroll Handling ---
@@ -87,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- Reveal Loop ---
         if (figuresToReveal > lastRevealedIndex) {
+            // Scrolling down
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
@@ -103,15 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         lastRevealedIndex = figuresToReveal; 
 
-        // --- "FOLLOW THE ACTION" SCROLL LOGIC ---
-        const lastFigure = figures[figuresToReveal - 1];
-        
-        if (lastFigure) {
-            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20;
-            vizSection.scrollTop = Math.max(0, newScrollTop);
-        } else if (progress < 0.01) {
-             vizSection.scrollTop = 0;
-        }
+        // --- "PROPORTIONAL" SCROLL LOGIC (THE FIX) ---
+        // This is the fastest, most stable method.
+        // It's performant on mobile and won't jump.
+        vizSection.scrollTop = totalGridScroll * progress;
     }
 
     // --- Dream Pop-up Functions ---
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dreamPopup.classList.add('hidden');
     });
 
-    // --- Initial Setup (THE FIX IS HERE) ---
+    // --- Initial Setup ---
     
     // 1. Create figures as soon as DOM is ready
     createFigures();
@@ -132,9 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Wait for *everything* (images, fonts) to load
     window.addEventListener('load', () => {
         
-        // 3. --- NEW: Wait an extra 100ms ---
+        // 3. --- Wait an extra 100ms ---
         // This gives fonts/images a final chance to reflow
-        // before we calculate the layout.
         setTimeout(() => {
             // 4. NOW, calculate the layout
             calculateLayout(); 
