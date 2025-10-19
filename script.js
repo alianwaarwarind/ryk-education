@@ -39,13 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. Define Layout Constants ---
     let scrollStart = 0;
     let totalScrollableDistance = 0;
-    // We don't need totalGridScroll, we'll calculate on the fly
+    let totalGridScroll = 0; // The max scrollTop of the grid
 
     function calculateLayout() {
         if (!vizSection) return;
         scrollStart = vizSection.offsetTop;
         const vhInPixels = window.innerHeight / 100;
         totalScrollableDistance = 500 * vhInPixels;
+        
+        // This is the total height the grid can scroll
+        totalGridScroll = vizSection.scrollHeight - vizSection.clientHeight;
     }
 
     // --- 3. High-Performance Scroll Handling ---
@@ -86,43 +89,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const figuresToReveal = Math.floor(progress * numFigures);
         
-        // --- Reveal Loop ---
+        // --- SIMPLIFIED REVEAL LOOP ---
         if (figuresToReveal > lastRevealedIndex) {
+            // Scrolling down
             for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
                 if (figures[i]) {
                     figures[i].classList.add('revealed');
                 }
             }
         } else if (figuresToReveal < lastRevealedIndex) {
-            // This is the "scroll-up" logic that breaks things.
-            // We'll *disable* it for stability.
-            // Figures will just stay revealed.
+            // Scrolling up
+            for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
+                if (figures[i]) {
+                    figures[i].classList.remove('revealed');
+                }
+            }
         }
         
-        // We now *always* set the index to the max revealed
-        // This prevents the "breaking on scroll-up" bug.
-        if (figuresToReveal > lastRevealedIndex) {
-            lastRevealedIndex = figuresToReveal; 
-        }
+        // THIS IS THE FIX for the "scroll-up" bug
+        lastRevealedIndex = figuresToReveal; 
 
-        // --- "FOLLOW THE ACTION" SCROLL LOGIC (THE FIX) ---
-        
-        // Find the *actual* last figure that was revealed
-        // (index is count - 1)
-        const lastFigure = figures[figuresToReveal - 1];
-        
-        if (lastFigure) {
-            // Calculate where the top of the grid needs to be
-            // to keep this last figure just in view at the bottom
-            const newScrollTop = lastFigure.offsetTop - vizSection.clientHeight + lastFigure.offsetHeight + 20; // +20 for padding
-            
-            // Set the scroll position, ensuring it's not negative
-            vizSection.scrollTop = Math.max(0, newScrollTop);
-        
-        } else if (progress < 0.01) {
-             // If we're at the top, reset scroll to 0
-             vizSection.scrollTop = 0;
-        }
+        // --- "PROPORTIONAL" SCROLL LOGIC (THE FIX) ---
+        // This is the fastest, most stable method.
+        // It's performant on mobile and won't jump.
+        vizSection.scrollTop = totalGridScroll * progress;
     }
 
     // --- Dream Pop-up Functions ---
