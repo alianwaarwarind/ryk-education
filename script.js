@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // We can show more figures now!
-    const numFigures = 1000; 
+    // UPDATED: Doubled the figures
+    const numFigures = 2000; 
     
     const container = document.getElementById('visualization-container');
     const button = document.getElementById('start-visualization');
@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         button.classList.add('hidden');
         
         // --- Randomly shuffle the figures array ---
-        // This makes them appear in a random "sea"
         const shuffledFigures = figures.sort(() => Math.random() - 0.5);
 
         // Reveal figures in batches for a "filling" effect
@@ -62,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (i >= numFigures) {
                 clearInterval(interval);
             }
-        }, 50); // Every 50ms (reveals all 1000 in 2.5 seconds)
+        // UPDATED: Slowed down the interval
+        }, 75); // Every 75ms (reveals all 2000 in 7.5 seconds)
     }
 
 
