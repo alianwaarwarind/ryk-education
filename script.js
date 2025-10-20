@@ -1,12 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const numFigures = 500;
+    // We can show more figures now!
+    const numFigures = 1000; 
     
     const container = document.getElementById('visualization-container');
-    const aliContainer = document.getElementById('ali-container');
-    const vizSection = document.getElementById('visualization-section');
-    const introSection = document.getElementById('intro-section');
+    const button = document.getElementById('start-visualization');
     const figures = [];
-    let lastRevealedIndex = 0; 
 
     const dreamPopup = document.getElementById('dream-popup');
     const dreamText = document.getElementById('dream-text');
@@ -27,109 +25,48 @@ document.addEventListener('DOMContentLoaded', () => {
             const span = document.createElement('span');
             span.className = 'figure';
             span.innerHTML = '🧍‍♂️'; 
+            
             span.addEventListener('click', () => {
                 showDream(dreams[Math.floor(Math.random() * dreams.length)]);
             });
+
             fragment.appendChild(span);
             figures.push(span);
         }
         container.appendChild(fragment);
     }
 
-    // --- 2. Define Layout Constants ---
-    let scrollStart = 0;
-    let totalScrollableDistance = 0;
-    
-    // Pre-calculated positions
-    let figureOffsetTops = []; 
-    let figureHeight = 0; 
-    let vizClientHeight = 0; 
-
-    function calculateLayout() {
-        if (!vizSection) return;
-        scrollStart = vizSection.offsetTop;
-        const vhInPixels = window.innerHeight / 100;
-        totalScrollableDistance = 500 * vhInPixels;
+    // --- 2. The NEW Animation Function ---
+    function startVisualization() {
+        // Hide the button so it can't be clicked again
+        button.classList.add('hidden');
         
-        vizClientHeight = vizSection.clientHeight; 
-        figureOffsetTops = []; 
-        
-        for (let i = 0; i < figures.length; i++) {
-            figureOffsetTops[i] = figures[i].offsetTop;
-        }
-        
-        if (figures[0]) {
-            figureHeight = figures[0].offsetHeight;
-        }
-    }
+        // --- Randomly shuffle the figures array ---
+        // This makes them appear in a random "sea"
+        const shuffledFigures = figures.sort(() => Math.random() - 0.5);
 
-    // --- 3. High-Performance Scroll Handling ---
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    function onScroll() {
-        lastScrollY = window.scrollY;
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                updateVisualization(lastScrollY);
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }
-
-    // --- 4. Update visualization (now runs in rAF) ---
-    function updateVisualization(scrollY) {
-        
-        // --- Ali Fade Logic ---
-        if (aliContainer && introSection) {
-            const introBottom = introSection.offsetTop + introSection.offsetHeight;
-            const aliFadeStart = aliContainer.offsetTop - window.innerHeight / 2;
-            const aliFadeEnd = introBottom - window.innerHeight / 4; 
-            const aliProgress = Math.min(1, Math.max(0, (scrollY - aliFadeStart) / (aliFadeEnd - aliFadeStart)));
+        // Reveal figures in batches for a "filling" effect
+        let i = 0;
+        const interval = setInterval(() => {
+            // Reveal a batch of 20 figures
+            const batch = shuffledFigures.slice(i, i + 20);
+            for (const figure of batch) {
+                if (figure) {
+                    figure.classList.add('revealed');
+                }
+            }
             
-            aliContainer.style.opacity = (1 - aliProgress).toString();
-            aliContainer.style.pointerEvents = aliProgress >= 1 ? 'none' : 'auto';
-        }
+            i += 20;
 
-        // --- Figure Reveal Logic ---
-        if (totalScrollableDistance <= 0) return; 
-
-        let scrollDistanceInViz = scrollY - scrollStart;
-        let progress = scrollDistanceInViz / totalScrollableDistance;
-        progress = Math.min(1, Math.max(0, progress));
-
-        const figuresToReveal = Math.floor(progress * numFigures);
-        
-        // --- Reveal Loop ---
-        if (figuresToReveal > lastRevealedIndex) {
-            for (let i = lastRevealedIndex; i < figuresToReveal; i++) {
-                if (figures[i]) {
-                    figures[i].classList.add('revealed');
-                }
+            // Stop when all figures are revealed
+            if (i >= numFigures) {
+                clearInterval(interval);
             }
-        } else if (figuresToReveal < lastRevealedIndex) {
-            for (let i = figuresToReveal; i < lastRevealedIndex; i++) {
-                if (figures[i]) {
-                    figures[i].classList.remove('revealed');
-                }
-            }
-        }
-        
-        lastRevealedIndex = figuresToReveal; 
-
-        // --- "FOLLOW" LOGIC USING PRE-CALCULATED VALUES ---
-        const lastFigureOffset = figureOffsetTops[figuresToReveal - 1];
-        
-        if (lastFigureOffset !== undefined) {
-            const newScrollTop = lastFigureOffset - vizClientHeight + figureHeight + 20;
-            vizSection.scrollTop = Math.max(0, newScrollTop);
-        } else if (progress < 0.01) {
-             vizSection.scrollTop = 0;
-        }
+        }, 50); // Every 50ms (reveals all 1000 in 2.5 seconds)
     }
 
-    // --- Dream Pop-up Functions ---
+
+    // --- 3. Dream Pop-up Functions ---
     function showDream(dream) {
         dreamText.textContent = `"I dream of becoming ${dream}..."`;
         dreamPopup.classList.remove('hidden');
@@ -139,30 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dreamPopup.classList.add('hidden');
     });
 
-    // --- Initial Setup ---
-    
-    // 1. Create figures as soon as DOM is ready
+    // --- 4. Initial Setup ---
     createFigures();
     
-    // 2. Wait for *everything* (images, fonts) to load
-    window.addEventListener('load', () => {
-        
-        // 3. --- THIS IS THE FIX ---
-        // Give the browser 500ms to finish all layout
-        // changes from fonts/emojis loading.
-        setTimeout(() => {
-            // 4. NOW, calculate the layout
-            calculateLayout(); 
-            
-            // 5. Run update once to set the initial state
-            requestAnimationFrame(() => updateVisualization(window.scrollY)); 
-            
-            // 6. NOW, add the scroll and resize listeners
-            window.addEventListener('scroll', onScroll, { passive: true });
-            window.addEventListener('resize', () => {
-                calculateLayout(); // Recalculate on resize
-                updateVisualization(window.scrollY);
-            });
-        }, 500); // 500ms grace period
-    });
+    // Add the click listener to the button
+    button.addEventListener('click', startVisualization);
 });
