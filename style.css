@@ -32,11 +32,11 @@ h1 {
     margin: 0;
 }
 
-/* Text Sections (Intro & Outro) */
+/* Intro Section */
 #intro-section {
     max-width: 700px;
     margin: 0 auto;
-    padding: 80px 20px 100px 20px;
+    padding: 80px 20px 40px 20px; /* Less bottom padding */
     background-color: white;
     font-size: 1.15rem;
     line-height: 1.8;
@@ -45,6 +45,9 @@ h1 {
     position: relative; 
     z-index: 3;
 }
+
+/* ... .stat-number, .lost-futures, #ali-container, #ali, .ali-text ... */
+/* (All of these are unchanged and correct) */
 
 .stat-number {
     font-weight: 700;
@@ -60,7 +63,6 @@ h1 {
     margin-top: 40px;
 }
 
-/* The 'Ali' Figure */
 #ali-container {
     margin: 50px auto;
     text-align: center;
@@ -71,8 +73,6 @@ h1 {
     font-size: 12rem; 
     line-height: 1;
     display: inline-block;
-    opacity: 1;
-    transition: opacity 0.8s ease-out;
     margin-bottom: 20px;
 }
 
@@ -84,41 +84,69 @@ h1 {
     font-size: 1.1rem;
 }
 
-/* --- SCROLL LAYOUT --- */
 
-/* 2. The Visualization (The Black Box)
-   UPDATED: overflow is now 'hidden'
+/* --- NEW BUTTON --- */
+#button-container {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: white;
+}
+
+#start-visualization {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    background-color: var(--vibrant-red);
+    border: none;
+    border-radius: 8px;
+    padding: 15px 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(217, 4, 41, 0.3);
+}
+
+#start-visualization:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(217, 4, 41, 0.4);
+}
+
+#start-visualization.hidden {
+    display: none;
+}
+
+
+/* --- SIMPLIFIED LAYOUT --- */
+
+/* The Visualization (The Black Box)
+   No longer sticky, just a normal block.
 */
 #visualization-section {
-    position: sticky;
-    top: 0;
     width: 100%;
-    height: 100vh;
+    min-height: 90vh; /* Fills the screen */
     background-color: var(--background-dark);
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* IMPORTANT: Clips the moving container */
+    overflow: hidden; /* No scrollbars needed */
     z-index: 1; 
+    padding: 40px 0; /* Add some padding */
+    box-sizing: border-box; /* Include padding in height */
 }
 
-/* 3. The Outro (Scroll Track) */
+/* The Outro Section
+   No longer a scroll track, just a normal block.
+*/
 #outro-section {
     position: relative; 
-    padding-top: 500vh;
-}
-
-/* The white overlay */
-.outro-content {
+    z-index: 2; 
+    background-color: white; 
     max-width: 700px;
     margin: 0 auto;
     padding: 80px 20px;
     font-size: 1.15rem;
     line-height: 1.8;
     text-align: center;
-    position: relative; 
-    z-index: 2; 
-    background-color: white; 
     box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
 }
 
@@ -128,12 +156,10 @@ h1 {
     margin-top: 40px;
 }
 
-/* --- END SCROLL LAYOUT --- */
+/* --- END SIMPLIFIED LAYOUT --- */
 
 
-/* Container for the 500 figures
-   UPDATED: Added will-change
-*/
+/* Container for the 1,000 figures */
 #visualization-container {
     width: 90%;
     max-width: 1000px; 
@@ -143,21 +169,20 @@ h1 {
     gap: 5px; 
     padding: 20px;
     justify-content: center; 
-    align-content: start; 
-    /* Hint to the browser to use the GPU */
-    will-change: transform;
+    align-content: start; /* Fills from the top */
 }
 
-/* Individual Figure Styling
-   UPDATED: Simplified for performance
-*/
+/* Individual Figure Styling */
 .figure {
     font-size: var(--figure-size);
     line-height: 1;
     color: var(--accent-color); 
     cursor: pointer; 
-    opacity: 0; /* Start hidden */
-    transition: opacity 0.3s ease; /* Simple fade in */
+    opacity: 0; 
+    transform: translateY(-20px) scale(0.9);
+    /* Faster, staggered reveal */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out; 
+    will-change: opacity, transform; 
     display: flex; 
     justify-content: center;
     align-items: center;
@@ -165,10 +190,10 @@ h1 {
 
 .figure.revealed {
     opacity: 1;
-    /* Transform animation is removed */
+    transform: translateY(0) scale(1);
 }
 
-/* Dream Pop-up ... (no changes) */
+/* Dream Pop-up (unchanged) */
 #dream-popup {
     position: fixed;
     top: 50%;
